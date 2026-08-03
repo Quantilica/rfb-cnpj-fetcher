@@ -1,0 +1,64 @@
+[project]
+name = "rfb-cnpj-fetcher"
+version = "0.1.0"
+description = "Download dos dados públicos de CNPJ da Receita Federal do Brasil"
+readme = "README.md"
+authors = [
+    { name = "Komesu, D.K.", email = "daniel@dkko.me" },
+]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+keywords = ["cnpj", "receita-federal", "rfb", "brazil", "open-data", "empresas"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = [
+    "quantilica-core>=0.3.2",
+    "beautifulsoup4>=4.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/Quantilica/rfb-cnpj-fetcher"
+Repository = "https://github.com/Quantilica/rfb-cnpj-fetcher"
+Issues = "https://github.com/Quantilica/rfb-cnpj-fetcher/issues"
+
+[project.scripts]
+rfb-cnpj-fetcher = "rfb_cnpj_fetcher.cli:main"
+
+[project.entry-points."quantilica.fetchers"]
+rfb-cnpj = "rfb_cnpj_fetcher.plugin:app"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.0",
+    "pytest>=8.0.0",
+    "pytest-cov",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-p", "no:cacheprovider"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rfb_cnpj_fetcher"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
