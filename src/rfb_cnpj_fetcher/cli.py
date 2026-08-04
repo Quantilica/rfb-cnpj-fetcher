@@ -50,15 +50,22 @@ def get_parser() -> argparse.ArgumentParser:
         "--competencia",
         metavar="YYYY-MM",
         default=None,
-        help="Competência a baixar (padrão: mais recente).",
+        help="Competência específica a baixar (ex: 2026-07).",
+    )
+    sync_p.add_argument(
+        "--latest",
+        action="store_true",
+        default=False,
+        help="Baixar apenas a competência mais recente.",
     )
     sync_p.add_argument(
         "--all",
         dest="all_competencias",
         action="store_true",
         default=False,
-        help="Baixar todas as competências disponíveis (histórico completo).",
+        help="Baixar todas as competências disponíveis (padrão).",
     )
+
     sync_p.add_argument(
         "--dry-run",
         action="store_true",
@@ -110,12 +117,12 @@ def _handle_sync(args: argparse.Namespace) -> None:
 
     groups = _resolve_groups(args.groups)
 
-    if args.all_competencias:
-        competencias = list_competencias()
-    elif args.competencia:
+    if args.competencia:
         competencias = [args.competencia]
-    else:
+    elif args.latest:
         competencias = [latest_competencia()]
+    else:
+        competencias = list_competencias()
 
     for comp in competencias:
         print(f"\nCompetência: {comp}")
@@ -130,17 +137,29 @@ def _handle_sync(args: argparse.Namespace) -> None:
         repo = DataRepository(args.output)
         ok = 0
         errors: list[tuple[str, str]] = []
+        disk_full = False
         for entry in entries:
             try:
                 download_entry(entry, repo)
                 ok += 1
             except Exception as exc:  # noqa: BLE001
-                errors.append((entry["filename"], str(exc)))
+                msg = str(exc)
+                errors.append((entry["filename"], msg))
+                if "Insufficient disk space" in msg or "No space left" in msg:
+                    disk_full = True
+                    break
 
         print(f"  {ok}/{len(entries)} arquivo(s) baixado(s).")
         if errors:
             for fname, msg in errors:
                 print(f"  ERRO: {fname}: {msg}", file=sys.stderr)
+        if disk_full:
+            print(
+                "\n[ERRO CRÍTICO] Espaço em disco insuficiente. "
+                "Sincronização interrompida.",
+                file=sys.stderr,
+            )
+            break
 
     if any(True for _ in []):  # unreachable — keeps exit code clean
         sys.exit(1)

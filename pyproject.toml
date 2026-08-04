@@ -1,7 +1,8 @@
 [project]
 name = "rfb-cnpj-fetcher"
-version = "0.1.0"
+version = "0.2.0"
 description = "Download dos dados públicos de CNPJ da Receita Federal do Brasil"
+
 readme = "README.md"
 authors = [
     { name = "Komesu, D.K.", email = "daniel@dkko.me" },

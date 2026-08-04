@@ -2,9 +2,10 @@
 
 Download dos dados públicos de CNPJ da Receita Federal do Brasil.
 
-Coleta os arquivos brutos (ZIP) do portal oficial
-[`dadosabertos.rfb.gov.br`](https://dadosabertos.rfb.gov.br/CNPJ/dados_abertos_cnpj/),
+Coleta os arquivos brutos (ZIP) do repositório oficial da Receita Federal
+[`arquivos.receitafederal.gov.br`](https://arquivos.receitafederal.gov.br/),
 organizados por competência mensal (snapshot completo do cadastro).
+
 
 ## Instalação
 

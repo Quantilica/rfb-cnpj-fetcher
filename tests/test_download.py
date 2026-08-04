@@ -19,7 +19,7 @@ def _make_entry(
     return FileEntry(
         group=group,
         filename=filename,
-        url=f"https://dadosabertos.rfb.gov.br/CNPJ/dados_abertos_cnpj/{competencia}/{filename}",
+        url=f"https://arquivos.receitafederal.gov.br/public.php/webdav/Dados/Cadastros/CNPJ/{competencia}/{filename}",
         competencia=competencia,
     )
 

@@ -1,17 +1,20 @@
-"""Discovery of RFB CNPJ open data files via HTTP directory index scraping."""
+"""Discovery of RFB CNPJ open data files via Nextcloud WebDAV directory inspection."""
 
 from __future__ import annotations
 
+import base64
 import re
 from typing import TypedDict
+from xml.etree import ElementTree as ET
 
-from bs4 import BeautifulSoup
 from quantilica.core.http import HttpClient
 from quantilica.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-BASE_URL = "https://dadosabertos.rfb.gov.br/CNPJ/dados_abertos_cnpj/"
+BASE_URL = "https://arquivos.receitafederal.gov.br/"
+WEBDAV_BASE_URL = "https://arquivos.receitafederal.gov.br/public.php/webdav/"
+CNPJ_PATH = "Dados/Cadastros/CNPJ"
 
 # Canonical group names, in display order
 GROUPS: list[str] = [
@@ -52,6 +55,68 @@ class FileEntry(TypedDict):
 
 
 _client = HttpClient(timeout=60.0)
+_cached_token: str | None = None
+
+
+def get_share_token(force_refresh: bool = False) -> str:
+    """Extract Nextcloud public share token from arquivos.receitafederal.gov.br.
+
+    Raises:
+        RuntimeError: if the share token cannot be found in the redirect URL.
+        httpx.HTTPError: if the portal is unreachable.
+    """
+    global _cached_token
+    if _cached_token and not force_refresh:
+        return _cached_token
+
+    res = _client.get(BASE_URL)
+    match = re.search(r"/s/([A-Za-z0-9]+)", str(res.url))
+    if not match:
+        raise RuntimeError(f"Could not extract Nextcloud share token from {res.url}")
+
+    _cached_token = match.group(1)
+    return _cached_token
+
+
+def get_auth_headers(force_refresh: bool = False) -> dict[str, str]:
+    """Return Basic Auth headers for WebDAV access using Nextcloud share token."""
+    token = get_share_token(force_refresh=force_refresh)
+    b64 = base64.b64encode(f"{token}:".encode()).decode()
+    return {"Authorization": f"Basic {b64}"}
+
+
+def _propfind(path: str) -> list[tuple[str, str]]:
+    """Query Nextcloud WebDAV directory via PROPFIND.
+
+    Returns a list of (filename, href) tuples for children of path.
+    """
+    headers = get_auth_headers()
+    headers.update({"Depth": "1"})
+    subpath = path.strip("/")
+    url = f"{WEBDAV_BASE_URL}{subpath}/" if subpath else WEBDAV_BASE_URL
+
+    res = _client.request("PROPFIND", url, headers=headers)
+    if res.status_code == 401:
+        headers = get_auth_headers(force_refresh=True)
+        headers.update({"Depth": "1"})
+        res = _client.request("PROPFIND", url, headers=headers)
+
+    res.raise_for_status()
+
+    root = ET.fromstring(res.content)
+    items: list[tuple[str, str]] = []
+    target_path = f"/public.php/webdav/{subpath}/".replace("//", "/")
+
+    for resp in root.findall(".//{DAV:}response"):
+        href_elem = resp.find(".//{DAV:}href")
+        if href_elem is None or not href_elem.text:
+            continue
+        href = href_elem.text
+        if href.rstrip("/") == target_path.rstrip("/"):
+            continue
+        name = href.rstrip("/").split("/")[-1]
+        items.append((name, href))
+    return items
 
 
 def list_competencias() -> list[str]:
@@ -60,13 +125,8 @@ def list_competencias() -> list[str]:
     Raises:
         httpx.HTTPError: if the RFB portal is unreachable.
     """
-    html = _client.get(BASE_URL).text
-    soup = BeautifulSoup(html, "html.parser")
-    result: list[str] = []
-    for link in soup.find_all("a", href=True):
-        href = link["href"].strip("/")
-        if re.match(r"^\d{4}-\d{2}$", href):
-            result.append(href)
+    items = _propfind(CNPJ_PATH)
+    result = [name for name, _ in items if re.match(r"^\d{4}-\d{2}$", name)]
     logger.debug("Found %d competências at RFB portal.", len(result))
     return sorted(result, reverse=True)
 
@@ -84,23 +144,20 @@ def list_files(
     Raises:
         httpx.HTTPError: if the competência directory is unreachable.
     """
-    url = f"{BASE_URL}{competencia}/"
-    html = _client.get(url).text
-    soup = BeautifulSoup(html, "html.parser")
-
     target_groups = groups if groups is not None else GROUPS
     patterns = {g: _GROUP_PATTERNS[g] for g in target_groups if g in _GROUP_PATTERNS}
 
+    items = _propfind(f"{CNPJ_PATH}/{competencia}")
     entries: list[FileEntry] = []
-    for link in soup.find_all("a", href=True):
-        filename = link["href"].strip()
+
+    for filename, href in items:
         for group, pat in patterns.items():
             if pat.match(filename):
                 entries.append(
                     FileEntry(
                         group=group,
                         filename=filename,
-                        url=f"{url}{filename}",
+                        url=f"https://arquivos.receitafederal.gov.br{href}",
                         competencia=competencia,
                     )
                 )

@@ -64,9 +64,13 @@ def cmd_sync(
         typer.Option(
             "--competencia",
             metavar="YYYY-MM",
-            help="Competência a baixar (padrão: mais recente).",
+            help="Competência específica a baixar (ex: 2026-07).",
         ),
     ] = None,
+    latest: Annotated[
+        bool,
+        typer.Option("--latest", help="Baixar apenas a competência mais recente."),
+    ] = False,
     all_competencias: Annotated[
         bool,
         typer.Option("--all", help="Baixar todas as competências disponíveis."),
@@ -91,12 +95,12 @@ def cmd_sync(
         raise typer.Exit(1)
 
     with console.status("[cyan]Consultando competências disponíveis...[/cyan]"):
-        if all_competencias:
-            competencias = list_competencias()
-        elif competencia:
+        if competencia:
             competencias = [competencia]
-        else:
+        elif latest:
             competencias = [latest_competencia()]
+        else:
+            competencias = list_competencias()
 
     for comp in competencias:
         console.rule(f"[bold]Competência {comp}[/bold]")
@@ -133,6 +137,7 @@ def cmd_sync(
 
         downloaded = 0
         errors: list[tuple[str, str]] = []
+        disk_full = False
 
         try:
             with Live(
@@ -150,7 +155,11 @@ def cmd_sync(
                         download_entry(entry, repo, progress=cb)
                         downloaded += 1
                     except Exception as exc:  # noqa: BLE001
-                        errors.append((entry["filename"], str(exc)))
+                        msg = str(exc)
+                        errors.append((entry["filename"], msg))
+                        if "Insufficient disk space" in msg or "No space left" in msg:
+                            disk_full = True
+                            break
                     finally:
                         overall.update(overall_task, advance=1)
                 file_prog.update(file_task, visible=False)
@@ -170,6 +179,13 @@ def cmd_sync(
                 f"\n[green]✓[/green]  [bold]{downloaded}[/bold] arquivo(s) baixado(s) "
                 f"em [dim]{output / comp}[/dim]."
             )
+
+        if disk_full:
+            console.print(
+                "\n[bold red]⚠ Espaço em disco insuficiente. "
+                "Sincronização interrompida.[/bold red]"
+            )
+            break
 
 
 @app.command("list")

@@ -5,7 +5,17 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.2.0] - 2026-08-02
+
+### Alterado
+
+- Atualizada a origem de dados para o repositório Nextcloud da Receita Federal
+  em `https://arquivos.receitafederal.gov.br/`.
+- Implementada navegação e listagem via protocolo WebDAV (`/public.php/webdav/Dados/Cadastros/CNPJ/`)
+  com resolução dinâmica do token de compartilhamento público e cabeçalhos de autenticação Basic.
+
 ## [0.1.0] - 2026-08-02
+
 
 Versão inicial do pacote.
 
