@@ -167,7 +167,7 @@ def cmd_sync(
                         disk_full = True
             finally:
                 overall.update(overall_task, advance=1)
-                file_prog.update(task_id, visible=False)
+                pass
 
         try:
             with Live(
