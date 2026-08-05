@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from quantilica.core.logging import configure_cli_logging
@@ -64,6 +66,12 @@ def get_parser() -> argparse.ArgumentParser:
         action="store_true",
         default=False,
         help="Baixar todas as competências disponíveis (padrão).",
+    )
+    sync_p.add_argument(
+        "--workers",
+        type=int,
+        default=4,
+        help="Número de downloads paralelos (padrão: 4).",
     )
 
     sync_p.add_argument(
@@ -138,16 +146,27 @@ def _handle_sync(args: argparse.Namespace) -> None:
         ok = 0
         errors: list[tuple[str, str]] = []
         disk_full = False
-        for entry in entries:
+        lock = threading.Lock()
+
+        def _job(entry: dict) -> None:
+            nonlocal ok, disk_full
+            if disk_full:
+                return
             try:
                 download_entry(entry, repo)
-                ok += 1
+                with lock:
+                    ok += 1
             except Exception as exc:  # noqa: BLE001
                 msg = str(exc)
-                errors.append((entry["filename"], msg))
-                if "Insufficient disk space" in msg or "No space left" in msg:
-                    disk_full = True
-                    break
+                with lock:
+                    errors.append((entry["filename"], msg))
+                    if "Insufficient disk space" in msg or "No space left" in msg:
+                        disk_full = True
+
+        with ThreadPoolExecutor(max_workers=args.workers) as executor:
+            futures = [executor.submit(_job, entry) for entry in entries]
+            for future in as_completed(futures):
+                future.result()
 
         print(f"  {ok}/{len(entries)} arquivo(s) baixado(s).")
         if errors:

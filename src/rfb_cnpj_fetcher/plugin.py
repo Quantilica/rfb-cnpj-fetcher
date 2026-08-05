@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Annotated
 
@@ -83,6 +85,10 @@ def cmd_sync(
         bool,
         typer.Option("--verbose", help="Exibir logs detalhados."),
     ] = False,
+    workers: Annotated[
+        int,
+        typer.Option("--workers", help="Número de downloads paralelos."),
+    ] = 4,
 ) -> None:
     """Sincronizar dados públicos de CNPJ da Receita Federal."""
     setup_rich_logging(verbose, console=console)
@@ -133,11 +139,35 @@ def cmd_sync(
         overall = make_batch_progress(console)
         file_prog = make_download_progress(console)
         overall_task = overall.add_task("[cyan]Iniciando...[/cyan]", total=total)
-        file_task = file_prog.add_task("", total=None, visible=False)
 
         downloaded = 0
         errors: list[tuple[str, str]] = []
         disk_full = False
+        lock = threading.Lock()
+
+        def _job(entry: dict) -> None:
+            nonlocal downloaded, disk_full
+            if disk_full:
+                return
+
+            # Cria a task de progresso com o nome do arquivo
+            task_name = f"[cyan]{entry['filename']}[/cyan]"
+            task_id = file_prog.add_task(task_name, total=None)
+            cb = _file_callback(file_prog, task_id, task_name)
+
+            try:
+                download_entry(entry, repo, progress=cb)
+                with lock:
+                    downloaded += 1
+            except Exception as exc:  # noqa: BLE001
+                msg = str(exc)
+                with lock:
+                    errors.append((entry["filename"], msg))
+                    if "Insufficient disk space" in msg or "No space left" in msg:
+                        disk_full = True
+            finally:
+                overall.update(overall_task, advance=1)
+                file_prog.update(task_id, visible=False)
 
         try:
             with Live(
@@ -145,24 +175,10 @@ def cmd_sync(
                 console=console,
                 refresh_per_second=10,
             ):
-                for entry in entries:
-                    overall.update(
-                        overall_task,
-                        description=f"[cyan]{entry['filename']}[/cyan]",
-                    )
-                    cb = _file_callback(file_prog, file_task, entry["filename"])
-                    try:
-                        download_entry(entry, repo, progress=cb)
-                        downloaded += 1
-                    except Exception as exc:  # noqa: BLE001
-                        msg = str(exc)
-                        errors.append((entry["filename"], msg))
-                        if "Insufficient disk space" in msg or "No space left" in msg:
-                            disk_full = True
-                            break
-                    finally:
-                        overall.update(overall_task, advance=1)
-                file_prog.update(file_task, visible=False)
+                with ThreadPoolExecutor(max_workers=workers) as executor:
+                    futures = [executor.submit(_job, entry) for entry in entries]
+                    for future in as_completed(futures):
+                        future.result()
         except KeyboardInterrupt:
             console.print("\n[yellow]Interrompido.[/yellow]")
             raise typer.Exit(130) from None
