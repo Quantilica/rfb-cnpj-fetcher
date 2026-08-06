@@ -1,5 +1,6 @@
 """Typer plugin for quantilica-cli integration."""
 
+# ruff: noqa: B023
 from __future__ import annotations
 
 import threading
@@ -14,10 +15,8 @@ from quantilica.core.cli import (
     make_download_progress,
     setup_rich_logging,
 )
-from quantilica.core.http import ProgressCallback
 from rich.console import Group
 from rich.live import Live
-from rich.progress import Progress, TaskID
 from rich.table import Table
 
 from .catalog import GROUPS, latest_competencia, list_competencias, list_files
@@ -28,25 +27,6 @@ app = typer.Typer(help="Dados públicos de CNPJ da Receita Federal do Brasil.")
 console = get_console()
 
 _DEFAULT_OUTPUT = Path("/data/rfb-cnpj")
-
-
-def _file_callback(
-    file_progress: Progress,
-    task_id: TaskID,
-    description: str,
-) -> ProgressCallback:
-    """Return a ProgressCallback that feeds a Rich byte-level task."""
-
-    def callback(downloaded: int, total_bytes: int) -> None:
-        if downloaded == 0 and total_bytes == 0:  # retry signal
-            file_progress.reset(task_id)
-            file_progress.update(task_id, description=description, visible=True)
-            return
-        if total_bytes:
-            file_progress.update(task_id, total=total_bytes)
-        file_progress.update(task_id, completed=downloaded)
-
-    return callback
 
 
 @app.command("sync")
@@ -140,20 +120,34 @@ def cmd_sync(
         file_prog = make_download_progress(console)
         overall_task = overall.add_task("[cyan]Iniciando...[/cyan]", total=total)
 
+        worker_task_ids = [
+            file_prog.add_task("[dim]Inativo[/dim]", total=1) for _ in range(workers)
+        ]
+        available_tasks = worker_task_ids.copy()
+
         downloaded = 0
         errors: list[tuple[str, str]] = []
         disk_full = False
         lock = threading.Lock()
 
-        def _job(entry: dict) -> None:
+        def _job(entry: dict) -> None:  # noqa: B023
             nonlocal downloaded, disk_full
             if disk_full:
                 return
 
-            # Cria a task de progresso com o nome do arquivo
-            task_name = f"[cyan]{entry['filename']}[/cyan]"
-            task_id = file_prog.add_task(task_name, total=None)
-            cb = _file_callback(file_prog, task_id, task_name)
+            with lock:
+                task_id = available_tasks.pop(0)
+
+            def cb(downloaded_bytes: int, total_bytes: int) -> None:
+                if downloaded_bytes == 0 and total_bytes == 0:  # retry signal
+                    file_prog.update(task_id, completed=0)
+                    return
+                file_prog.update(
+                    task_id,
+                    description=f"[cyan]{entry['filename']}[/cyan]",
+                    completed=downloaded_bytes,
+                    total=total_bytes or None,
+                )
 
             try:
                 download_entry(entry, repo, progress=cb)
@@ -167,7 +161,11 @@ def cmd_sync(
                         disk_full = True
             finally:
                 overall.update(overall_task, advance=1)
-                pass
+                with lock:
+                    file_prog.update(
+                        task_id, description="[dim]Inativo[/dim]", completed=0, total=1
+                    )
+                    available_tasks.append(task_id)
 
         try:
             with Live(
