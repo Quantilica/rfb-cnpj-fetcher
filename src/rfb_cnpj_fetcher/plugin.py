@@ -3,14 +3,15 @@
 # ruff: noqa: B023
 from __future__ import annotations
 
-import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import concurrent.futures
 from pathlib import Path
 from typing import Annotated
 
 import typer
 from quantilica.core.cli import (
+    ProgressPool,
     get_console,
+    graceful_executor,
     make_batch_progress,
     make_download_progress,
     setup_rich_logging,
@@ -120,66 +121,45 @@ def cmd_sync(
         file_prog = make_download_progress(console)
         overall_task = overall.add_task("[cyan]Iniciando...[/cyan]", total=total)
 
-        worker_task_ids = [
-            file_prog.add_task("[dim]Inativo[/dim]", total=1) for _ in range(workers)
-        ]
-        available_tasks = worker_task_ids.copy()
-
         downloaded = 0
         errors: list[tuple[str, str]] = []
         disk_full = False
-        lock = threading.Lock()
 
-        def _job(entry: dict) -> None:  # noqa: B023
-            nonlocal downloaded, disk_full
+        pool = ProgressPool(workers=workers, file_prog=file_prog)
+
+        def _job(entry: dict) -> bool:  # noqa: B023
+            nonlocal disk_full
             if disk_full:
-                return
-
-            with lock:
-                task_id = available_tasks.pop(0)
-
-            def cb(downloaded_bytes: int, total_bytes: int) -> None:
-                if downloaded_bytes == 0 and total_bytes == 0:  # retry signal
-                    file_prog.update(task_id, completed=0)
-                    return
-                file_prog.update(
-                    task_id,
-                    description=f"[cyan]{entry['filename']}[/cyan]",
-                    completed=downloaded_bytes,
-                    total=total_bytes or None,
-                )
+                return False
 
             try:
-                download_entry(entry, repo, progress=cb)
-                with lock:
-                    downloaded += 1
+                with pool.acquire(
+                    description=f"[cyan]{entry['filename']}[/cyan]"
+                ) as cb:
+                    download_entry(entry, repo, progress=cb)
+                    return True
             except Exception as exc:  # noqa: BLE001
                 msg = str(exc)
-                with lock:
-                    errors.append((entry["filename"], msg))
-                    if "Insufficient disk space" in msg or "No space left" in msg:
-                        disk_full = True
-            finally:
-                overall.update(overall_task, advance=1)
-                with lock:
-                    file_prog.update(
-                        task_id, description="[dim]Inativo[/dim]", completed=0, total=1
-                    )
-                    available_tasks.append(task_id)
+                errors.append((entry["filename"], msg))
+                if "Insufficient disk space" in msg or "No space left" in msg:
+                    disk_full = True
+                return False
 
-        try:
-            with Live(
-                Group(overall, file_prog),
-                console=console,
-                refresh_per_second=10,
-            ):
-                with ThreadPoolExecutor(max_workers=workers) as executor:
-                    futures = [executor.submit(_job, entry) for entry in entries]
-                    for future in as_completed(futures):
-                        future.result()
-        except KeyboardInterrupt:
-            console.print("\n[yellow]Interrompido.[/yellow]")
-            raise typer.Exit(130) from None
+        with graceful_executor(max_workers=workers) as executor:
+            try:
+                with Live(
+                    Group(overall, file_prog),
+                    console=console,
+                    refresh_per_second=10,
+                ):
+                    futures = {executor.submit(_job, entry): entry for entry in entries}
+                    for future in concurrent.futures.as_completed(futures):
+                        overall.update(overall_task, advance=1)
+                        if future.result():
+                            downloaded += 1
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Interrompido.[/yellow]")
+                raise typer.Exit(130) from None
 
         if errors:
             console.print(
