@@ -1,6 +1,7 @@
 """Standalone command-line interface for rfb-cnpj-fetcher."""
 
 import sys
+
 from .plugin import app
 
 

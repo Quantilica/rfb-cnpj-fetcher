@@ -1,6 +1,6 @@
 [project]
 name = "rfb-cnpj-fetcher"
-version = "0.2.1"
+version = "0.3.0"
 description = "Download dos dados públicos de CNPJ da Receita Federal do Brasil"
 
 readme = "README.md"
@@ -26,8 +26,6 @@ classifiers = [
 ]
 dependencies = [
     "quantilica-core>=0.4.0",
-    "quantilica-cli>=0.2.0",
-    "quantilica-catalog>=0.2.0",
     "beautifulsoup4>=4.12",
 ]
 
