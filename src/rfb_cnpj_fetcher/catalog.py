@@ -200,14 +200,16 @@ def list_datasets(group: str | None = None) -> list[dict[str, Any]]:
     res: list[dict[str, Any]] = []
     for e in entries:
         if group is None or e["group"] == group:
-            res.append({
-                "id": e["filename"],
-                "url": e["url"],
-                "ext": "zip",
-                "group": e["group"],
-                "year": int(e["competencia"][:4]),
-                "month": int(e["competencia"][5:7]),
-                "filename": e["filename"],
-                "competencia": e["competencia"],
-            })
+            res.append(
+                {
+                    "id": e["filename"],
+                    "url": e["url"],
+                    "ext": "zip",
+                    "group": e["group"],
+                    "year": int(e["competencia"][:4]),
+                    "month": int(e["competencia"][5:7]),
+                    "filename": e["filename"],
+                    "competencia": e["competencia"],
+                }
+            )
     return res
