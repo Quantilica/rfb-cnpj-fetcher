@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import base64
+import functools
 import re
-from typing import TypedDict
+from typing import Any, TypedDict
 from xml.etree import ElementTree as ET
 
 from quantilica.core.http import HttpClient
@@ -17,18 +18,20 @@ WEBDAV_BASE_URL = "https://arquivos.receitafederal.gov.br/public.php/webdav/"
 CNPJ_PATH = "Dados/Cadastros/CNPJ"
 
 # Canonical group names, in display order
-GROUPS: list[str] = [
-    "empresas",
-    "estabelecimentos",
-    "socios",
-    "simples",
-    "cnaes",
-    "naturezas",
-    "qualificacoes",
-    "municipios",
-    "paises",
-    "motivos",
-]
+GROUPS: dict[str, dict[str, str]] = {
+    "empresas": {"name": "Empresas"},
+    "estabelecimentos": {"name": "Estabelecimentos"},
+    "socios": {"name": "Sócios"},
+    "simples": {"name": "Simples"},
+    "cnaes": {"name": "CNAEs"},
+    "naturezas": {"name": "Naturezas Jurídicas"},
+    "qualificacoes": {"name": "Qualificações de Sócios"},
+    "municipios": {"name": "Municípios"},
+    "paises": {"name": "Países"},
+    "motivos": {"name": "Motivos de Situação Cadastral"},
+}
+
+GROUP_ALIASES: dict[str, list[str]] = {}
 
 # Filename patterns per group (case-insensitive match against directory index)
 _GROUP_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -183,3 +186,28 @@ def latest_competencia() -> str:
     if not comps:
         raise RuntimeError("No competências found at the RFB portal.")
     return comps[0]
+
+
+@functools.lru_cache
+def _get_latest_entries() -> list[FileEntry]:
+    comp = latest_competencia()
+    return list_files(comp, groups=list(GROUPS.keys()))
+
+
+def list_datasets(group: str | None = None) -> list[dict[str, Any]]:
+    """Return all datasets for the latest competência, optionally filtered by group."""
+    entries = _get_latest_entries()
+    res: list[dict[str, Any]] = []
+    for e in entries:
+        if group is None or e["group"] == group:
+            res.append({
+                "id": e["filename"],
+                "url": e["url"],
+                "ext": "zip",
+                "group": e["group"],
+                "year": int(e["competencia"][:4]),
+                "month": int(e["competencia"][5:7]),
+                "filename": e["filename"],
+                "competencia": e["competencia"],
+            })
+    return res

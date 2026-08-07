@@ -14,7 +14,6 @@ from .catalog import (
     list_competencias,
     list_files,
 )
-from .download import download_entry, download_file
 from .storage import DataRepository
 
 __all__ = [
@@ -22,8 +21,6 @@ __all__ = [
     "GROUPS",
     "FileEntry",
     "DataRepository",
-    "download_entry",
-    "download_file",
     "latest_competencia",
     "list_competencias",
     "list_files",
