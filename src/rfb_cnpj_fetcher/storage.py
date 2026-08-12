@@ -22,6 +22,11 @@ class DataRepository(BaseDataRepository):
     """Manages local storage for rfb-cnpj-fetcher files."""
 
     def __init__(self, root: Path | str):
+        """Initialize the data repository.
+
+        Args:
+            root (Path | str): The base path where files will be stored.
+        """
         super().__init__(root)
 
     def path_for_entry(
@@ -33,6 +38,14 @@ class DataRepository(BaseDataRepository):
         """Compute local path for a FileEntry.
 
         Returns <root>/<competencia>/<group>/<stamped_basename>.zip
+
+        Args:
+            entry (FileEntry): The file entry specifying group, filename, etc.
+            last_modified (dt.date | None, optional): Optional last modified date to
+                stamp on the filename.
+
+        Returns:
+            Path: The resolved target local path for the given file entry.
         """
         base = Path(entry["filename"]).stem  # "Empresas0" or "Simples"
         filename = stamp_filename(base, "zip", last_modified)

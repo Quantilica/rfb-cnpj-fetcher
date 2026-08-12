@@ -15,6 +15,18 @@ from .storage import DataRepository
 def path_builder(
     output_dir: Path, entry: dict[str, Any], last_modified: dt.date | None
 ) -> Path:
+    """Build the target download path for a given file entry.
+
+    Args:
+        output_dir (Path): The root output directory.
+        entry (dict[str, Any]): Dictionary containing metadata like 'group',
+            'filename', 'url', and 'competencia'.
+        last_modified (dt.date | None): Optional last modified date to stamp on the
+            filename.
+
+    Returns:
+        Path: The constructed path for saving the downloaded file.
+    """
     file_entry = FileEntry(
         group=entry["group"],
         filename=entry["filename"],

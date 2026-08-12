@@ -64,6 +64,13 @@ _cached_token: str | None = None
 def get_share_token(force_refresh: bool = False) -> str:
     """Extract Nextcloud public share token from arquivos.receitafederal.gov.br.
 
+    Args:
+        force_refresh (bool): Whether to force fetching a new token instead of using
+            cache. Defaults to False.
+
+    Returns:
+        str: The share token extracted from the URL.
+
     Raises:
         RuntimeError: if the share token cannot be found in the redirect URL.
         httpx.HTTPError: if the portal is unreachable.
@@ -82,7 +89,15 @@ def get_share_token(force_refresh: bool = False) -> str:
 
 
 def get_auth_headers(force_refresh: bool = False) -> dict[str, str]:
-    """Return Basic Auth headers for WebDAV access using Nextcloud share token."""
+    """Return Basic Auth headers for WebDAV access using Nextcloud share token.
+
+    Args:
+        force_refresh (bool): Whether to force a refresh of the share token. Defaults
+            to False.
+
+    Returns:
+        dict[str, str]: The dictionary containing the Authorization header.
+    """
     token = get_share_token(force_refresh=force_refresh)
     b64 = base64.b64encode(f"{token}:".encode()).decode()
     return {"Authorization": f"Basic {b64}"}
@@ -125,6 +140,9 @@ def _propfind(path: str) -> list[tuple[str, str]]:
 def list_competencias() -> list[str]:
     """Return available competências (YYYY-MM), sorted newest first.
 
+    Returns:
+        list[str]: A list of available competências in YYYY-MM format.
+
     Raises:
         httpx.HTTPError: if the RFB portal is unreachable.
     """
@@ -141,8 +159,13 @@ def list_files(
     """Return downloadable FileEntry objects for the given competência.
 
     Args:
-        competencia: YYYY-MM string (e.g., "2025-07").
-        groups: optional filter; if None, returns all known groups.
+        competencia (str): YYYY-MM string (e.g., "2025-07").
+        groups (list[str] | None, optional): filter by specific groups; if None,
+            returns all known groups.
+
+    Returns:
+        list[FileEntry]: A list of files available for the specified competência and
+            groups.
 
     Raises:
         httpx.HTTPError: if the competência directory is unreachable.
@@ -178,6 +201,9 @@ def list_files(
 def latest_competencia() -> str:
     """Return the most recent available competência.
 
+    Returns:
+        str: The most recent competência in YYYY-MM format.
+
     Raises:
         RuntimeError: if no competências are found.
         httpx.HTTPError: if the RFB portal is unreachable.
@@ -195,7 +221,15 @@ def _get_latest_entries() -> list[FileEntry]:
 
 
 def list_datasets(group: str | None = None) -> list[dict[str, Any]]:
-    """Return all datasets for the latest competência, optionally filtered by group."""
+    """Return all datasets for the latest competência, optionally filtered by group.
+
+    Args:
+        group (str | None, optional): If provided, filters the datasets to only return
+            those matching the group.
+
+    Returns:
+        list[dict[str, Any]]: A list of dictionary objects representing datasets.
+    """
     entries = _get_latest_entries()
     res: list[dict[str, Any]] = []
     for e in entries:

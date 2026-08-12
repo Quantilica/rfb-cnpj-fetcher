@@ -1,10 +1,8 @@
 # rfb-cnpj-fetcher
 
-Download dos dados públicos de CNPJ da Receita Federal do Brasil.
+O `rfb-cnpj-fetcher` é um pacote responsável por baixar e organizar os dados públicos de CNPJ da Receita Federal do Brasil. Ele coleta os arquivos brutos (ZIP) do repositório oficial da Receita Federal [`arquivos.receitafederal.gov.br`](https://arquivos.receitafederal.gov.br/), organizados por competência mensal, permitindo o acompanhamento de todo o cadastro (empresas, estabelecimentos, sócios, etc.).
 
-Coleta os arquivos brutos (ZIP) do repositório oficial da Receita Federal
-[`arquivos.receitafederal.gov.br`](https://arquivos.receitafederal.gov.br/),
-organizados por competência mensal (snapshot completo do cadastro).
+Para acessar a documentação completa do ecossistema, incluindo este pacote, visite: [https://docs.quantilica.com](https://docs.quantilica.com)
 
 
 ## Instalação
