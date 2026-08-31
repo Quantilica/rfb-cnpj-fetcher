@@ -73,7 +73,7 @@ def get_share_token(force_refresh: bool = False) -> str:
 
     Raises:
         RuntimeError: if the share token cannot be found in the redirect URL.
-        httpx.HTTPError: if the portal is unreachable.
+        httpx2.HTTPError: if the portal is unreachable.
     """
     global _cached_token
     if _cached_token and not force_refresh:
@@ -144,7 +144,7 @@ def list_competencias() -> list[str]:
         list[str]: A list of available competências in YYYY-MM format.
 
     Raises:
-        httpx.HTTPError: if the RFB portal is unreachable.
+        httpx2.HTTPError: if the RFB portal is unreachable.
     """
     items = _propfind(CNPJ_PATH)
     result = [name for name, _ in items if re.match(r"^\d{4}-\d{2}$", name)]
@@ -168,7 +168,7 @@ def list_files(
             groups.
 
     Raises:
-        httpx.HTTPError: if the competência directory is unreachable.
+        httpx2.HTTPError: if the competência directory is unreachable.
     """
     target_groups = groups if groups is not None else GROUPS
     patterns = {g: _GROUP_PATTERNS[g] for g in target_groups if g in _GROUP_PATTERNS}
@@ -206,7 +206,7 @@ def latest_competencia() -> str:
 
     Raises:
         RuntimeError: if no competências are found.
-        httpx.HTTPError: if the RFB portal is unreachable.
+        httpx2.HTTPError: if the RFB portal is unreachable.
     """
     comps = list_competencias()
     if not comps:

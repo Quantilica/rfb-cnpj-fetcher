@@ -25,7 +25,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "quantilica-core>=0.4.0",
+    "quantilica-core>=0.6.0",
     "beautifulsoup4>=4.12",
 ]
 
