@@ -1,6 +1,6 @@
 [project]
 name = "rfb-cnpj-fetcher"
-version = "0.3.0"
+version = "0.3.1"
 description = "Download dos dados públicos de CNPJ da Receita Federal do Brasil"
 
 readme = "README.md"

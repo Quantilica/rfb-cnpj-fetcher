@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.1] - 2026-08-30
+### Alterado
+- Docstrings de exceção atualizadas para os tipos `httpx2` (`httpx2.HTTPError`), alinhadas à migração do `quantilica-core`.
+- Dependência `quantilica-core` elevada para `>=0.6.0`.
+
 ## [0.3.0] - 2026-08-07
 ### Alterado
 - Refatoração arquitetural: Remoção de dependências (`quantilica-cli` e `quantilica-catalog`) e limpeza de imports. Os fetchers agora são pacotes de extração puros, dependendo estritamente do `quantilica-core`.
