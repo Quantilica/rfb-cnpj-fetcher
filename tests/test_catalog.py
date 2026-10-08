@@ -5,7 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 from rfb_cnpj_fetcher.catalog import (
-    WEBDAV_BASE_URL,
+    DAV_FILES_BASE_URL,
     get_auth_headers,
     get_share_token,
     list_competencias,
@@ -95,6 +95,10 @@ def test_list_files_multi_part_group():
             return_value={"Authorization": "Basic TEST"},
         ),
         patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="TESTTOKEN",
+        ),
+        patch(
             "rfb_cnpj_fetcher.catalog._client.request",
             return_value=_mock_response(_COMP_XML),
         ),
@@ -110,6 +114,10 @@ def test_list_files_all_known_groups_present():
         patch(
             "rfb_cnpj_fetcher.catalog.get_auth_headers",
             return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="TESTTOKEN",
         ),
         patch(
             "rfb_cnpj_fetcher.catalog._client.request",
@@ -129,6 +137,10 @@ def test_list_files_filtered_by_single_group():
             return_value={"Authorization": "Basic TEST"},
         ),
         patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="TESTTOKEN",
+        ),
+        patch(
             "rfb_cnpj_fetcher.catalog._client.request",
             return_value=_mock_response(_COMP_XML),
         ),
@@ -138,7 +150,9 @@ def test_list_files_filtered_by_single_group():
     assert entries[0]["group"] == "simples"
     assert entries[0]["filename"] == "Simples.zip"
     assert entries[0]["competencia"] == "2025-07"
-    expected_url = f"{WEBDAV_BASE_URL}Dados/Cadastros/CNPJ/2025-07/Simples.zip"
+    expected_url = (
+        f"{DAV_FILES_BASE_URL}TESTTOKEN/Dados/Cadastros/CNPJ/2025-07/Simples.zip"
+    )
     assert entries[0]["url"] == expected_url
 
 
@@ -148,6 +162,10 @@ def test_list_files_filtered_by_multiple_groups():
         patch(
             "rfb_cnpj_fetcher.catalog.get_auth_headers",
             return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="TESTTOKEN",
         ),
         patch(
             "rfb_cnpj_fetcher.catalog._client.request",
@@ -160,11 +178,15 @@ def test_list_files_filtered_by_multiple_groups():
 
 
 def test_list_files_url_construction():
-    """Entry URLs are fully qualified."""
+    """Entry URLs are fully qualified and use the auth-free dav/files endpoint."""
     with (
         patch(
             "rfb_cnpj_fetcher.catalog.get_auth_headers",
             return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="TESTTOKEN",
         ),
         patch(
             "rfb_cnpj_fetcher.catalog._client.request",
@@ -174,3 +196,28 @@ def test_list_files_url_construction():
         entries = list_files("2025-07", groups=["cnaes"])
     assert entries[0]["url"].startswith("https://")
     assert entries[0]["url"].endswith("Cnaes.zip")
+    assert "/public.php/dav/files/TESTTOKEN/" in entries[0]["url"]
+
+
+def test_list_files_url_embeds_token_not_webdav():
+    """Download URLs carry the token in the path (no Basic auth needed)."""
+    with (
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_auth_headers",
+            return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="TOKEN42",
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.request",
+            return_value=_mock_response(_COMP_XML),
+        ),
+    ):
+        entries = list_files("2025-07", groups=["empresas"])
+    urls = [e["url"] for e in entries]
+    assert urls, "esperava ao menos um arquivo de empresas"
+    for url in urls:
+        assert f"{DAV_FILES_BASE_URL}TOKEN42/Dados/Cadastros/CNPJ/2025-07/" in url
+        assert "/public.php/webdav/" not in url

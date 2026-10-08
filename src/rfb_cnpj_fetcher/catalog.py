@@ -15,6 +15,10 @@ logger = get_logger(__name__)
 
 BASE_URL = "https://arquivos.receitafederal.gov.br/"
 WEBDAV_BASE_URL = "https://arquivos.receitafederal.gov.br/public.php/webdav/"
+# Endpoint de download sem autenticação: o token público do share vai no path.
+# O GET/HEAD em WEBDAV_BASE_URL exige Basic auth (401 no client canônico do SDK);
+# DAV_FILES_BASE_URL aceita o token na URL e responde ETag/Last-Modified/Content-Length.
+DAV_FILES_BASE_URL = "https://arquivos.receitafederal.gov.br/public.php/dav/files/"
 CNPJ_PATH = "Dados/Cadastros/CNPJ"
 
 # Canonical group names, in display order
@@ -103,6 +107,27 @@ def get_auth_headers(force_refresh: bool = False) -> dict[str, str]:
     return {"Authorization": f"Basic {b64}"}
 
 
+def _download_url(href: str) -> str:
+    """Build a download URL that requires no Authorization header.
+
+    PROPFIND returns hrefs rooted at ``/public.php/webdav/``. Downloading (and
+    HEAD) against that endpoint requires Basic auth, which the canonical SDK
+    client does not carry (it would 401). The public-share ``dav/files/{token}``
+    endpoint instead accepts the token in the path, so embed it and drop the
+    webdav prefix.
+
+    Args:
+        href: Full href from a PROPFIND response (e.g.
+            ``/public.php/webdav/Dados/Cadastros/CNPJ/2025-07/Simples.zip``).
+
+    Returns:
+        str: Auth-free download URL (``.../public.php/dav/files/{token}/...``).
+    """
+    rel = href.replace("/public.php/webdav/", "", 1).lstrip("/")
+    token = get_share_token()
+    return f"{DAV_FILES_BASE_URL}{token}/{rel}"
+
+
 def _propfind(path: str) -> list[tuple[str, str]]:
     """Query Nextcloud WebDAV directory via PROPFIND.
 
@@ -183,7 +208,7 @@ def list_files(
                     FileEntry(
                         group=group,
                         filename=filename,
-                        url=f"https://arquivos.receitafederal.gov.br{href}",
+                        url=_download_url(href),
                         competencia=competencia,
                     )
                 )
