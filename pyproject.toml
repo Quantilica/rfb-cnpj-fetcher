@@ -44,7 +44,7 @@ rfb-cnpj = "rfb_cnpj_fetcher.plugin:app"
 dev = [
     "ruff>=0.9.0",
     "pytest>=8.0.0",
-    "pytest-cov",
+    "pytest-cov>=7.1",
 ]
 
 [tool.pytest.ini_options]
