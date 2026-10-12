@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from rfb_cnpj_fetcher.catalog import (
     DAV_FILES_BASE_URL,
+    DEFAULT_SHARE_TOKEN,
+    SHARE_TOKEN_ENV_VAR,
     get_auth_headers,
     get_share_token,
     list_competencias,
@@ -53,6 +58,148 @@ def test_get_share_token():
     assert token == "TESTTOKEN123"
     assert "Authorization" in headers
     assert headers["Authorization"].startswith("Basic ")
+
+
+def test_get_share_token_env_var_takes_precedence_without_request():
+    """Env var is used directly, with no request to the landing page."""
+    mock_res = MagicMock()
+    with (
+        patch.dict("os.environ", {SHARE_TOKEN_ENV_VAR: "ENVTOKEN"}, clear=False),
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.get", return_value=mock_res
+        ) as mock_get,
+    ):
+        token = get_share_token(force_refresh=True)
+    assert token == "ENVTOKEN"
+    mock_get.assert_not_called()
+
+
+def test_get_share_token_empty_env_var_ignored():
+    """An empty env var does not shadow the redirect discovery."""
+    mock_res = MagicMock()
+    mock_res.url = "https://arquivos.receitafederal.gov.br/index.php/s/REDIRECTTOKEN"
+    with (
+        patch.dict("os.environ", {SHARE_TOKEN_ENV_VAR: "   "}, clear=False),
+        patch("rfb_cnpj_fetcher.catalog._client.get", return_value=mock_res),
+    ):
+        token = get_share_token(force_refresh=True)
+    assert token == "REDIRECTTOKEN"
+
+
+def test_get_share_token_empty_landing_falls_back(caplog):
+    """Landing page 200 with empty body (no redirect) triggers the fallback."""
+    mock_res = MagicMock()
+    mock_res.url = "https://arquivos.receitafederal.gov.br/"
+    with (
+        patch("rfb_cnpj_fetcher.catalog._client.get", return_value=mock_res),
+        caplog.at_level(logging.WARNING),
+    ):
+        token = get_share_token(force_refresh=True)
+    assert token == DEFAULT_SHARE_TOKEN
+    assert any("fallback" in rec.message.lower() for rec in caplog.records)
+
+
+def test_get_share_token_network_error_falls_back(caplog):
+    """Landing page network failure falls back to DEFAULT_SHARE_TOKEN."""
+    with (
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.get",
+            side_effect=ConnectionError("portal off"),
+        ),
+        caplog.at_level(logging.WARNING),
+    ):
+        token = get_share_token(force_refresh=True)
+    assert token == DEFAULT_SHARE_TOKEN
+    assert any("fallback" in rec.message.lower() for rec in caplog.records)
+
+
+def test_get_share_token_force_refresh_still_prefers_env_var():
+    """force_refresh re-runs resolution, but the env var keeps precedence."""
+    mock_res = MagicMock()
+    mock_res.url = "https://arquivos.receitafederal.gov.br/index.php/s/REDIRECTTOKEN"
+    with (
+        patch.dict("os.environ", {SHARE_TOKEN_ENV_VAR: "ENVTOKEN2"}, clear=False),
+        patch("rfb_cnpj_fetcher.catalog._client.get", return_value=mock_res),
+    ):
+        token = get_share_token(force_refresh=True)
+    assert token == "ENVTOKEN2"
+
+
+def test_propfind_final_401_raises_clear_error_after_refresh():
+    """A second 401 after token refresh fails with a clear error, not a loop."""
+    res_401 = _mock_response(b"", status_code=401)
+    with (
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="STALETOKEN",
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.request",
+            side_effect=[res_401, res_401],
+        ) as mock_req,
+        pytest.raises(RuntimeError, match="401") as excinfo,
+    ):
+        list_competencias()
+    assert mock_req.call_count == 2  # tentativa única de refresh, sem loop
+    assert SHARE_TOKEN_ENV_VAR in str(excinfo.value)
+
+
+@pytest.fixture
+def no_retry_delay(monkeypatch):
+    monkeypatch.setattr("rfb_cnpj_fetcher.catalog.PROPFIND_RETRY_DELAY", 0.0)
+
+
+def test_propfind_empty_200_exhausts_retries(no_retry_delay):
+    """200 com corpo vazio nas 3 tentativas levanta RuntimeError claro."""
+    empty = _mock_response(b"", status_code=200)
+    with (
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_auth_headers",
+            return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.request",
+            return_value=empty,
+        ) as mock_req,
+        pytest.raises(RuntimeError, match="HTTP 200 e corpo vazio/não-XML"),
+    ):
+        list_competencias()
+    assert mock_req.call_count == 3
+
+
+def test_propfind_empty_200_then_valid_207_succeeds(no_retry_delay):
+    """Uma resposta vazia seguida de 207 válido recupera por retry."""
+    with (
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_auth_headers",
+            return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.request",
+            side_effect=[
+                _mock_response(b"", status_code=200),
+                _mock_response(_INDEX_XML),
+            ],
+        ) as mock_req,
+    ):
+        comps = list_competencias()
+    assert comps == ["2025-07", "2025-06", "2024-12"]
+    assert mock_req.call_count == 2
+
+
+def test_propfind_valid_207_single_request(no_retry_delay):
+    with (
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_auth_headers",
+            return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.request",
+            return_value=_mock_response(_INDEX_XML),
+        ) as mock_req,
+    ):
+        list_competencias()
+    assert mock_req.call_count == 1
 
 
 def test_list_competencias_sorted_desc():

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import base64
 import functools
+import os
 import re
+import time
 from typing import Any, TypedDict
 from xml.etree import ElementTree as ET
 
@@ -20,6 +22,16 @@ WEBDAV_BASE_URL = "https://arquivos.receitafederal.gov.br/public.php/webdav/"
 # DAV_FILES_BASE_URL aceita o token na URL e responde ETag/Last-Modified/Content-Length.
 DAV_FILES_BASE_URL = "https://arquivos.receitafederal.gov.br/public.php/dav/files/"
 CNPJ_PATH = "Dados/Cadastros/CNPJ"
+
+# Token do share público usado como último recurso quando a landing page deixa de
+# redirecionar para /s/<token> (ex.: corpo vazio com 200). Validado manualmente via
+# PROPFIND com Basic auth no WebDAV.
+DEFAULT_SHARE_TOKEN = "gn672Ad4CF8N6TK"
+SHARE_TOKEN_ENV_VAR = "RFB_CNPJ_SHARE_TOKEN"
+
+# O portal responde de forma intermitente ao PROPFIND com HTTP 200 e corpo vazio.
+PROPFIND_MAX_RETRIES = 2
+PROPFIND_RETRY_DELAY = 5.0
 
 # Canonical group names, in display order
 GROUPS: dict[str, dict[str, str]] = {
@@ -66,27 +78,52 @@ _cached_token: str | None = None
 
 
 def get_share_token(force_refresh: bool = False) -> str:
-    """Extract Nextcloud public share token from arquivos.receitafederal.gov.br.
+    """Resolve o token de share público do Nextcloud.
+
+    A ordem de resolução é:
+
+    1. variável de ambiente ``RFB_CNPJ_SHARE_TOKEN`` (se definida e não vazia);
+    2. descoberta via redirect da landing page para ``/s/<token>``;
+    3. fallback para ``DEFAULT_SHARE_TOKEN`` (com WARNING) quando a descoberta
+       falha (sem match ou erro HTTP/rede na landing page).
 
     Args:
-        force_refresh (bool): Whether to force fetching a new token instead of using
-            cache. Defaults to False.
+        force_refresh (bool): Se True, refaz a resolução em vez de usar o cache
+            em memória. A variável de ambiente continua tendo precedência.
+            Defaults to False.
 
     Returns:
-        str: The share token extracted from the URL.
+        str: O token de share resolvido.
 
     Raises:
-        RuntimeError: if the share token cannot be found in the redirect URL.
-        httpx2.HTTPError: if the portal is unreachable.
+        RuntimeError: se nenhuma estratégia de resolução conseguir extrair um
+            token e o fallback também estiver indisponível.
     """
     global _cached_token
+
+    env_token = os.environ.get(SHARE_TOKEN_ENV_VAR, "").strip()
+    if env_token:
+        _cached_token = env_token
+        return _cached_token
+
     if _cached_token and not force_refresh:
         return _cached_token
 
-    res = _client.get(BASE_URL)
-    match = re.search(r"/s/([A-Za-z0-9]+)", str(res.url))
+    try:
+        res = _client.get(BASE_URL)
+        match = re.search(r"/s/([A-Za-z0-9]+)", str(res.url))
+    except Exception:
+        match = None
     if not match:
-        raise RuntimeError(f"Could not extract Nextcloud share token from {res.url}")
+        logger.warning(
+            "Não foi possível descobrir o token de share do Nextcloud via "
+            "landing page %s (sem redirect para /s/<token> ou erro de rede). "
+            "Usando token de fallback %s.",
+            BASE_URL,
+            DEFAULT_SHARE_TOKEN,
+        )
+        _cached_token = DEFAULT_SHARE_TOKEN
+        return _cached_token
 
     _cached_token = match.group(1)
     return _cached_token
@@ -128,6 +165,16 @@ def _download_url(href: str) -> str:
     return f"{DAV_FILES_BASE_URL}{token}/{rel}"
 
 
+def _parse_multistatus(res: Any) -> ET.Element | None:
+    """Parse a PROPFIND response, returning None if it is not a 207 multistatus."""
+    if res.status_code != 207 or not res.content:
+        return None
+    try:
+        return ET.fromstring(res.content)
+    except ET.ParseError:
+        return None
+
+
 def _propfind(path: str) -> list[tuple[str, str]]:
     """Query Nextcloud WebDAV directory via PROPFIND.
 
@@ -138,15 +185,45 @@ def _propfind(path: str) -> list[tuple[str, str]]:
     subpath = path.strip("/")
     url = f"{WEBDAV_BASE_URL}{subpath}/" if subpath else WEBDAV_BASE_URL
 
-    res = _client.request("PROPFIND", url, headers=headers)
-    if res.status_code == 401:
-        headers = get_auth_headers(force_refresh=True)
-        headers.update({"Depth": "1"})
+    root: ET.Element | None = None
+    res = None
+    for attempt in range(PROPFIND_MAX_RETRIES + 1):
+        if attempt:
+            time.sleep(PROPFIND_RETRY_DELAY)
         res = _client.request("PROPFIND", url, headers=headers)
+        if res.status_code == 401:
+            headers = get_auth_headers(force_refresh=True)
+            headers.update({"Depth": "1"})
+            res = _client.request("PROPFIND", url, headers=headers)
+            if res.status_code == 401:
+                # Tentativa única de refresh: se o token de fallback também for
+                # inválido, falha com erro claro em vez de entrar em loop.
+                raise RuntimeError(
+                    f"WebDAV do RFB rejeitou o token de share (401) mesmo após "
+                    f"refresh em {url}. Defina a variável de ambiente "
+                    f"{SHARE_TOKEN_ENV_VAR} com um token válido."
+                )
 
-    res.raise_for_status()
+        res.raise_for_status()
+        root = _parse_multistatus(res)
+        if root is not None:
+            break
+        logger.warning(
+            "PROPFIND com HTTP %s e corpo vazio/não-XML em %s (tentativa %d/%d)",
+            res.status_code,
+            url,
+            attempt + 1,
+            PROPFIND_MAX_RETRIES + 1,
+        )
 
-    root = ET.fromstring(res.content)
+    if root is None:
+        assert res is not None
+        raise RuntimeError(
+            f"Servidor da Receita Federal respondeu ao PROPFIND com HTTP "
+            f"{res.status_code} e corpo vazio/não-XML (instabilidade do portal "
+            f"arquivos.receitafederal.gov.br) em {url}"
+        )
+
     items: list[tuple[str, str]] = []
     target_path = f"/public.php/webdav/{subpath}/".replace("//", "/")
 
