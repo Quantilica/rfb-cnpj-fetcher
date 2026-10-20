@@ -5,6 +5,24 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.4.0] - 2026-10-20
+
+### Adicionado
+- `rfb_cnpj_fetcher.reader` (extra `analysis`): `read_file()` lê um ZIP baixado num
+  DataFrame Polars tipado, com o layout dos dez grupos da Receita (Latin-1, `;`,
+  campos entre aspas). Códigos (partes do CNPJ, CNAE, natureza, município, país)
+  ficam como texto, com zeros à esquerda; `capital_social` é `Decimal(20, 2)`; datas
+  `AAAAMMDD` viram `Date`, e só as sentinelas de "sem data" (`0`, `00000000`, vazio)
+  viram nulo. Conversões estritas: linha com número de campos diferente do layout,
+  data inválida ou capital não numérico levantam `ValueError` em vez de deslocar
+  colunas ou virar nulo.
+- `write_parquet()` delega ao `quantilica.analytics.writer.to_parquet`, com a
+  proveniência do manifesto quando o ZIP de origem tem `.manifest.json`.
+
+### Corrigido
+- README: o grupo `municipios` traz o código de município da Receita (4 dígitos),
+  não o do IBGE.
+
 ## [0.3.2] - 2026-10-20
 
 ### Corrigido
