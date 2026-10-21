@@ -368,3 +368,45 @@ def test_list_files_url_embeds_token_not_webdav():
     for url in urls:
         assert f"{DAV_FILES_BASE_URL}TOKEN42/Dados/Cadastros/CNPJ/2025-07/" in url
         assert "/public.php/webdav/" not in url
+
+
+_REPAIRED_XML = """\
+<?xml version="1.0"?>
+<d:multistatus xmlns:d="DAV:">
+<d:response><d:href>/public.php/webdav/Dados/Cadastros/CNPJ/2023-08/</d:href></d:response>
+<d:response><d:href>/public.php/webdav/Dados/Cadastros/CNPJ/2023-08/Estabelecimentos6.zip</d:href></d:response>
+<d:response><d:href>/public.php/webdav/Dados/Cadastros/CNPJ/2023-08/Estabelecimentos6-RF0819000032530.zip</d:href></d:response>
+<d:response><d:href>/public.php/webdav/Dados/Cadastros/CNPJ/2023-08/Socios7-RF0819000032530.zip</d:href></d:response>
+<d:response><d:href>/public.php/webdav/Dados/Cadastros/CNPJ/2023-08/Socios7.zip</d:href></d:response>
+</d:multistatus>
+"""
+
+
+def test_list_files_prefers_repaired_file_with_ticket_suffix():
+    """Arquivos com sufixo de reparo/chamado (-RF...) substituem arquivos truncados."""
+    with (
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_auth_headers",
+            return_value={"Authorization": "Basic TEST"},
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog.get_share_token",
+            return_value="TOKEN42",
+        ),
+        patch(
+            "rfb_cnpj_fetcher.catalog._client.request",
+            return_value=_mock_response(_REPAIRED_XML),
+        ),
+    ):
+        entries = list_files("2023-08")
+
+    filenames = [e["filename"] for e in entries]
+    assert sorted(filenames) == ["Estabelecimentos6.zip", "Socios7.zip"]
+
+    est6 = next(e for e in entries if e["filename"] == "Estabelecimentos6.zip")
+    assert "Estabelecimentos6-RF0819000032530.zip" in est6["url"]
+    assert est6["group"] == "estabelecimentos"
+
+    soc7 = next(e for e in entries if e["filename"] == "Socios7.zip")
+    assert "Socios7-RF0819000032530.zip" in soc7["url"]
+    assert soc7["group"] == "socios"

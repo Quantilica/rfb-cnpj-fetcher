@@ -49,18 +49,41 @@ GROUPS: dict[str, dict[str, str]] = {
 
 GROUP_ALIASES: dict[str, list[str]] = {}
 
-# Filename patterns per group (case-insensitive match against directory index)
+# Filename patterns per group (case-insensitive match against directory index).
+# Suporta nomes canônicos e correções com sufixo de chamado/reparo
+# (ex.: Estabelecimentos6-RF0819000032530.zip).
 _GROUP_PATTERNS: dict[str, re.Pattern[str]] = {
-    "empresas": re.compile(r"^Empresas\d+\.zip$", re.IGNORECASE),
-    "estabelecimentos": re.compile(r"^Estabelecimentos\d+\.zip$", re.IGNORECASE),
-    "socios": re.compile(r"^Socios\d+\.zip$", re.IGNORECASE),
-    "simples": re.compile(r"^Simples\.zip$", re.IGNORECASE),
-    "cnaes": re.compile(r"^Cnaes\.zip$", re.IGNORECASE),
-    "naturezas": re.compile(r"^Naturezas\.zip$", re.IGNORECASE),
-    "qualificacoes": re.compile(r"^Qualificacoes\.zip$", re.IGNORECASE),
-    "municipios": re.compile(r"^Municipios\.zip$", re.IGNORECASE),
-    "paises": re.compile(r"^Paises\.zip$", re.IGNORECASE),
-    "motivos": re.compile(r"^Motivos\.zip$", re.IGNORECASE),
+    "empresas": re.compile(
+        r"^(?P<canonical>Empresas\d+)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "estabelecimentos": re.compile(
+        r"^(?P<canonical>Estabelecimentos\d+)(?:-[A-Za-z0-9]+)?\.zip$",
+        re.IGNORECASE,
+    ),
+    "socios": re.compile(
+        r"^(?P<canonical>Socios\d+)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "simples": re.compile(
+        r"^(?P<canonical>Simples)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "cnaes": re.compile(
+        r"^(?P<canonical>Cnaes)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "naturezas": re.compile(
+        r"^(?P<canonical>Naturezas)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "qualificacoes": re.compile(
+        r"^(?P<canonical>Qualificacoes)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "municipios": re.compile(
+        r"^(?P<canonical>Municipios)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "paises": re.compile(
+        r"^(?P<canonical>Paises)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
+    "motivos": re.compile(
+        r"^(?P<canonical>Motivos)(?:-[A-Za-z0-9]+)?\.zip$", re.IGNORECASE
+    ),
 }
 
 
@@ -276,20 +299,29 @@ def list_files(
     patterns = {g: _GROUP_PATTERNS[g] for g in target_groups if g in _GROUP_PATTERNS}
 
     items = _propfind(f"{CNPJ_PATH}/{competencia}")
-    entries: list[FileEntry] = []
+    selected: dict[tuple[str, str], tuple[bool, FileEntry]] = {}
 
     for filename, href in items:
         for group, pat in patterns.items():
-            if pat.match(filename):
-                entries.append(
-                    FileEntry(
-                        group=group,
-                        filename=filename,
-                        url=_download_url(href),
-                        competencia=competencia,
+            m = pat.match(filename)
+            if m:
+                canonical_base = m.group("canonical")
+                canonical_filename = f"{canonical_base}.zip"
+                is_repaired = bool("-" in filename)
+                key = (group, canonical_filename.lower())
+                if key not in selected or (is_repaired and not selected[key][0]):
+                    selected[key] = (
+                        is_repaired,
+                        FileEntry(
+                            group=group,
+                            filename=canonical_filename,
+                            url=_download_url(href),
+                            competencia=competencia,
+                        ),
                     )
-                )
                 break
+
+    entries = [entry for _, entry in selected.values()]
 
     logger.debug(
         "Found %d file(s) for competência %s (groups: %s).",
