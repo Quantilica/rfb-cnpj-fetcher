@@ -157,6 +157,10 @@ class LakeConverter:
                     header=False,
                     names=names,
                     converter=f"rfb-cnpj-fetcher {__version__}",
+                    # Campos entre aspas duplas; sem isto o DuckDB pode detectar
+                    # o apóstrofo de uma razão social como escape e abortar.
+                    quote='"',
+                    escape='"',
                 )
             except (LakeError, OSError, duckdb.Error) as exc:
                 message = str(exc).strip()

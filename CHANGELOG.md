@@ -5,6 +5,15 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Unreleased]
+
+### Corrigido
+- `convert` fixa aspas duplas como `quote` e `escape` na leitura dos ZIPs. Antes, o
+  DuckDB podia detectar o apóstrofo de uma razão social (`D'AGUA`) como escape e
+  abortar o arquivo com `CSV Error on Line`; numa competência inteira, metade dos
+  arquivos de empresas, estabelecimentos e sócios falhava.
+- Extra `analysis` exige `quantilica-analytics>=0.5.1`.
+
 ## [0.5.0] - 2026-10-27
 
 ### Adicionado

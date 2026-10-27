@@ -138,6 +138,24 @@ def test_convert_end_to_end(raw_data: Path, tmp_path: Path) -> None:
     assert res2.skipped == 3
 
 
+def test_convert_apostrophe_and_doubled_quotes(tmp_path: Path) -> None:
+    root = tmp_path / "raw"
+    lines = [
+        _line("00000002", "D'AGUA COMERCIO LTDA", "2062", "49", "1000,00", "01", ""),
+        _line("00000003", 'BAR "DO ZE" O\'NEIL', "2135", "50", "0,00", "05", ""),
+    ]
+    _zip(root / "2026-10" / "empresas" / "Empresas2@20261012.zip", lines)
+
+    res = converter.convert(root, tmp_path / "lake")
+
+    assert not res.errors
+    df = scan_dataset(tmp_path / "lake" / SOURCE_ID / "empresas").collect()
+    assert sorted(df["razao_social"].to_list()) == [
+        'BAR "DO ZE" O\'NEIL',
+        "D'AGUA COMERCIO LTDA",
+    ]
+
+
 def test_convert_filter_dataset(raw_data: Path, tmp_path: Path) -> None:
     lake_dir = tmp_path / "lake"
     res = converter.convert(raw_data, lake_dir, datasets=["cnaes"])
