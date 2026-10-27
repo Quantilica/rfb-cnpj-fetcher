@@ -161,6 +161,9 @@ class LakeConverter:
                     # o apóstrofo de uma razão social como escape e abortar.
                     quote='"',
                     escape='"',
+                    # Há complementos de endereço com quebra de linha entre
+                    # aspas, que o leitor paralelo do DuckDB não aceita.
+                    parallel=False,
                 )
             except (LakeError, OSError, duckdb.Error) as exc:
                 message = str(exc).strip()

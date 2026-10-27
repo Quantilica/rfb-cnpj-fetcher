@@ -12,6 +12,10 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
   DuckDB podia detectar o apóstrofo de uma razão social (`D'AGUA`) como escape e
   abortar o arquivo com `CSV Error on Line`; numa competência inteira, metade dos
   arquivos de empresas, estabelecimentos e sócios falhava.
+- `convert` lê os ZIPs com uma só thread do DuckDB: há complementos de endereço com
+  quebra de linha entre aspas, que o leitor paralelo recusa.
+- Arquivos com bytes entre 0x80 e 0x9F (válidos em Latin-1) deixam de falhar com
+  "File is not latin-1 encoded".
 - Extra `analysis` exige `quantilica-analytics>=0.5.1`.
 
 ## [0.5.0] - 2026-10-27
