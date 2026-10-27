@@ -11,6 +11,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Módulo `rfb_cnpj_fetcher.lake` e entry point `quantilica.lake`: conversão dos arquivos ZIP da Receita Federal para o formato universal Parquet com particionamento Hive (`ano=/mes=`).
 - Comandos CLI `convert` e `pipeline` integrados via SDK do `FetcherApp`, com suporte a `--lake`, `--dataset` e `--force`.
 - Extra `analysis` agora inclui `duckdb>=1.2.0` e `quantilica-analytics>=0.8.0` para conversão em streaming com metadados de proveniência e descritor `_dataset.json`.
+- Dependência de base `quantilica-core` atualizada para `>=0.13.0` para conformidade com o contrato de layout Hive.
 
 ## [0.4.0] - 2026-10-20
 
