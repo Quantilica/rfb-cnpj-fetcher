@@ -1,6 +1,6 @@
 [project]
 name = "rfb-cnpj-fetcher"
-version = "0.4.0"
+version = "0.5.0"
 description = "Download dos dados públicos de CNPJ da Receita Federal do Brasil"
 
 readme = "README.md"
@@ -30,8 +30,9 @@ dependencies = [
 
 [project.optional-dependencies]
 analysis = [
+    "duckdb>=1.2.0",
     "polars>=1.0.0",
-    "quantilica-analytics>=0.4.0",
+    "quantilica-analytics>=0.8.0",
 ]
 
 [project.urls]
@@ -44,6 +45,9 @@ rfb-cnpj-fetcher = "rfb_cnpj_fetcher.cli:main"
 
 [project.entry-points."quantilica.fetchers"]
 rfb-cnpj = "rfb_cnpj_fetcher.plugin:app"
+
+[project.entry-points."quantilica.lake"]
+rfb-cnpj = "rfb_cnpj_fetcher.lake:converter"
 
 [dependency-groups]
 dev = [

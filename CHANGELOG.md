@@ -5,6 +5,13 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.5.0] - 2026-10-26
+
+### Adicionado
+- Módulo `rfb_cnpj_fetcher.lake` e entry point `quantilica.lake`: conversão dos arquivos ZIP da Receita Federal para o formato universal Parquet com particionamento Hive (`ano=/mes=`).
+- Comandos CLI `convert` e `pipeline` integrados via SDK do `FetcherApp`, com suporte a `--lake`, `--dataset` e `--force`.
+- Extra `analysis` agora inclui `duckdb>=1.2.0` e `quantilica-analytics>=0.8.0` para conversão em streaming com metadados de proveniência e descritor `_dataset.json`.
+
 ## [0.4.0] - 2026-10-20
 
 ### Adicionado
