@@ -16,7 +16,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
   quebra de linha entre aspas, que o leitor paralelo recusa.
 - Arquivos com bytes entre 0x80 e 0x9F (válidos em Latin-1) deixam de falhar com
   "File is not latin-1 encoded".
-- Extra `analysis` exige `quantilica-analytics>=0.5.1`.
+- Extra `analysis` exige `quantilica-analytics>=0.6.0`.
 
 ## [0.5.0] - 2026-10-27
 
