@@ -89,15 +89,20 @@ def test_infer_group() -> None:
     assert infer_group(Path("2026-10/cnaes/Cnaes@20261012.zip")) == "cnaes"
     assert infer_group(Path("downloads/Empresas0.zip")) == "empresas"
     assert infer_group(Path("downloads/Estabelecimentos2.zip")) == "estabelecimentos"
+    assert infer_group(Path("empresas/empresas_0_2025-07@20250710.zip")) == "empresas"
+    assert infer_group(Path("simples/simples_2025-07@20250710.zip")) == "simples"
     assert infer_group(Path("downloads/random.zip")) is None
 
 
 def test_infer_partitions() -> None:
     parts = infer_partitions(Path("raw/2026-10/cnaes/Cnaes@20261012.zip"))
-    assert parts == {"ano": "2026", "mes": "10"}
+    assert parts == {"ano": 2026, "mes": "10"}
+
+    parts_new = infer_partitions(Path("empresas/empresas_0_2025-07@20250710.zip"))
+    assert parts_new == {"ano": 2025, "mes": "07"}
 
     parts_stamp = infer_partitions(Path("flat/Empresas0@20250710.zip"))
-    assert parts_stamp == {"ano": "2025", "mes": "07"}
+    assert parts_stamp == {"ano": 2025, "mes": "07"}
 
     assert infer_partitions(Path("unknown/file.zip")) is None
 
@@ -120,7 +125,7 @@ def test_convert_end_to_end(raw_data: Path, tmp_path: Path) -> None:
     df_cnaes = scan_dataset(cnaes_dir).collect()
     assert df_cnaes.shape == (2, 4)  # 2 data cols + ano + mes
     assert set(df_cnaes["codigo"].to_list()) == {"6201500", "6202300"}
-    assert df_cnaes["ano"][0] == "2026"
+    assert df_cnaes["ano"][0] == 2026
     assert df_cnaes["mes"][0] == "10"
 
     # Check empresas dataset (has 2 parts)

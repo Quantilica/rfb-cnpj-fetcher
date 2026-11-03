@@ -11,9 +11,10 @@ Examples:
 from __future__ import annotations
 
 import datetime as dt
+import re
 from pathlib import Path
 
-from quantilica.core.storage import BaseDataRepository, stamp_filename
+from quantilica.core.storage import BaseDataRepository, build_stamped_filename
 
 from .catalog import FileEntry
 
@@ -33,22 +34,30 @@ class DataRepository(BaseDataRepository):
         self,
         entry: FileEntry,
         *,
-        last_modified: dt.date | None = None,
+        last_modified: dt.date | dt.datetime | None = None,
     ) -> Path:
         """Compute local path for a FileEntry.
 
-        Returns <root>/<competencia>/<group>/<stamped_basename>.zip
+        Returns <root>/<group>/<slug>_<competencia>@<YYYYMMDD>.zip
 
         Args:
             entry (FileEntry): The file entry specifying group, filename, etc.
-            last_modified (dt.date | None, optional): Optional last modified date to
-                stamp on the filename.
+            last_modified (dt.date | dt.datetime | None, optional): Optional
+                last modified date to stamp on the filename.
 
         Returns:
             Path: The resolved target local path for the given file entry.
         """
+        timestamp = last_modified or dt.date.today()
         base = Path(entry["filename"]).stem  # "Empresas0" or "Simples"
-        filename = stamp_filename(base, "zip", last_modified)
-        return self.storage.path_for(
-            f"{entry['competencia']}/{entry['group']}/{filename}"
+        slug = re.sub(r"(?<=[a-zA-Z])(?=\d)", "_", base).lower()
+        competencia = entry.get("competencia", "")
+        group = entry.get("group", "datasets")
+        filename = build_stamped_filename(
+            slug,
+            competencia if competencia else None,
+            ext="zip",
+            timestamp=timestamp,
+            precision="date",
         )
+        return self.dataset_path(group, filename)

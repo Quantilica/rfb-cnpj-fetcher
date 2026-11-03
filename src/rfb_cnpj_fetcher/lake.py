@@ -11,11 +11,12 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 try:
     import duckdb
     from quantilica.analytics.lake import LakeError, LakeWriter
-    from quantilica.core.lake import DatasetDescriptor
+    from quantilica.core.lake import DatasetDescriptor, partition_types_for
 except ImportError as exc:
     raise ImportError(
         "rfb_cnpj_fetcher.lake requer o extra 'analysis': "
@@ -29,9 +30,10 @@ from rfb_cnpj_fetcher.reader import LAYOUTS
 
 SOURCE_ID = "rfb-cnpj"
 PARTITION_KEYS = ["ano", "mes"]
-PARTITION_TYPES = {"ano": "varchar", "mes": "varchar"}
+PARTITION_TYPES = partition_types_for(PARTITION_KEYS)
 
 _COMPETENCIA = re.compile(r"^\d{4}-\d{2}$")
+_COMPETENCIA_IN_FILENAME = re.compile(r"_(?P<ano>\d{4})-(?P<mes>\d{2})(?:@|$)")
 _STAMP = re.compile(r"@(?P<ano>\d{4})(?P<mes>\d{2})\d{2}")
 
 
@@ -52,20 +54,29 @@ def infer_group(path: Path) -> str | None:
     for group, pattern in _GROUP_PATTERNS.items():
         if pattern.search(path.name):
             return group
+    # Check if slug before competencia matches a layout (e.g. empresas_0_2025-07)
+    clean = re.sub(r"_\d{4}-\d{2}(?:@\d+)?.*$", "", path.name.lower())
+    clean_no_idx = re.sub(r"_\d+$", "", clean)
+    if clean_no_idx in LAYOUTS:
+        return clean_no_idx
     return None
 
 
-def infer_partitions(path: Path) -> dict[str, str] | None:
+def infer_partitions(path: Path) -> dict[str, Any] | None:
     """Infer ``ano`` and ``mes`` partition values from folder structure or filename."""
+    # Check filename for _YYYY-MM
+    match = _COMPETENCIA_IN_FILENAME.search(path.name)
+    if match:
+        return {"ano": int(match["ano"]), "mes": match["mes"]}
     # Check parent and grandparent for YYYY-MM
     for parent in (path.parent, path.parent.parent):
         if _COMPETENCIA.match(parent.name):
             ano, mes = parent.name.split("-")
-            return {"ano": ano, "mes": mes}
+            return {"ano": int(ano), "mes": mes}
     # Check @YYYYMMDD stamp in filename
     match = _STAMP.search(path.name)
     if match:
-        return {"ano": match["ano"], "mes": match["mes"]}
+        return {"ano": int(match["ano"]), "mes": match["mes"]}
     return None
 
 
