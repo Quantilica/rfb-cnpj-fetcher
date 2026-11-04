@@ -46,6 +46,7 @@ fetcher = FetcherApp(
     aliases_dict=GROUP_ALIASES,
     list_datasets=list_datasets,
     path_builder=path_builder,
+    default_output=Path("/data/rfb-cnpj"),
     freshness_policy=FreshnessPolicy.HEAD_OR_MANIFEST,
 )
 
@@ -58,7 +59,13 @@ def convert(
     force: bool = False,
 ) -> Any:
     """Converte arquivos brutos do RFB-CNPJ para o lake Hive (Parquet)."""
-    from rfb_cnpj_fetcher import lake
+    try:
+        from rfb_cnpj_fetcher import lake
+    except ImportError as exc:
+        raise ImportError(
+            "Conversão para o lake requer o extra 'analysis'. "
+            "Instale com: quantilica install rfb-cnpj --extra analysis"
+        ) from exc
 
     return lake.converter.convert(input_dir, lake_dir, datasets=dataset, force=force)
 
