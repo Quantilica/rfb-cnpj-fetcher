@@ -148,8 +148,9 @@ def get_share_token(force_refresh: bool = False) -> str:
         _cached_token = DEFAULT_SHARE_TOKEN
         return _cached_token
 
-    _cached_token = match.group(1)
-    return _cached_token
+    token = match.group(1)
+    _cached_token = token
+    return token
 
 
 def get_auth_headers(force_refresh: bool = False) -> dict[str, str]:
