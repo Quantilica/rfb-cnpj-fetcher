@@ -1,0 +1,78 @@
+{
+  "fonte": "rfb-cnpj",
+  "dataset": "socios",
+  "gerado_em": "2026-11-10T14:17:17+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "cnpj_basico",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "identificador_socio",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "nome_socio",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "cnpj_cpf_socio",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "qualificacao_socio",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_entrada_sociedade",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "pais",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "representante_legal",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "nome_representante_legal",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "qualificacao_representante_legal",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "faixa_etaria",
+      "tipos": [
+        "string"
+      ]
+    }
+  ],
+  "arquivos": 4
+}

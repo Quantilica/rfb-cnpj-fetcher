@@ -7,6 +7,9 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Adicionado
+- Documentação dos dados em `docs/`, conforme a norma de documentação dos dados: página da fonte, página de cada um dos dez datasets com dicionário de todas as variáveis e esquema de referência do lake. Um teste a verifica.
+
 ## [0.5.3] - 2026-11-04
 
 ### Corrigido

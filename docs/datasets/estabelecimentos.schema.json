@@ -1,0 +1,192 @@
+{
+  "fonte": "rfb-cnpj",
+  "dataset": "estabelecimentos",
+  "gerado_em": "2026-11-10T14:17:17+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "cnpj_basico",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "cnpj_ordem",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "cnpj_dv",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "identificador_matriz_filial",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "nome_fantasia",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "situacao_cadastral",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_situacao_cadastral",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "motivo_situacao_cadastral",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "nome_cidade_exterior",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "pais",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_inicio_atividade",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "cnae_fiscal_principal",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "cnae_fiscal_secundaria",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "tipo_logradouro",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "logradouro",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "numero",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "complemento",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "bairro",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "cep",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "uf",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "municipio",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "ddd1",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "telefone1",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "ddd2",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "telefone2",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "ddd_fax",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "fax",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "correio_eletronico",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "situacao_especial",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_situacao_especial",
+      "tipos": [
+        "string"
+      ]
+    }
+  ],
+  "arquivos": 4
+}

@@ -1,0 +1,54 @@
+{
+  "fonte": "rfb-cnpj",
+  "dataset": "simples",
+  "gerado_em": "2026-11-10T14:17:17+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "cnpj_basico",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "opcao_simples",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_opcao_simples",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_exclusao_simples",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "opcao_mei",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_opcao_mei",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "data_exclusao_mei",
+      "tipos": [
+        "string"
+      ]
+    }
+  ],
+  "arquivos": 4
+}

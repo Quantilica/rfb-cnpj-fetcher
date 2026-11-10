@@ -1,0 +1,54 @@
+{
+  "fonte": "rfb-cnpj",
+  "dataset": "empresas",
+  "gerado_em": "2026-11-10T14:17:17+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "cnpj_basico",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "razao_social",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "natureza_juridica",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "qualificacao_responsavel",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "capital_social",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "porte_empresa",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "ente_federativo_responsavel",
+      "tipos": [
+        "string"
+      ]
+    }
+  ],
+  "arquivos": 4
+}

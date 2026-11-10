@@ -1,0 +1,24 @@
+{
+  "fonte": "rfb-cnpj",
+  "dataset": "qualificacoes",
+  "gerado_em": "2026-11-10T14:17:17+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "codigo",
+      "tipos": [
+        "string"
+      ]
+    },
+    {
+      "nome": "descricao",
+      "tipos": [
+        "string"
+      ]
+    }
+  ],
+  "arquivos": 4
+}
