@@ -7,6 +7,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.6.0] - 2026-11-10
+
 ### Alterado
 - Exige `quantilica-analytics>=0.11.2` no extra `analysis`: as versões 0.10.0 a 0.11.1 recusavam os ZIPs reais da Receita, cujo arquivo de dados não termina em `.csv` nem `.txt`.
 
