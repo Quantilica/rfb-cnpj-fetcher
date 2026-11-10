@@ -86,12 +86,12 @@ A tabela de empresas do Cadastro Nacional da Pessoa Jurídica (CNPJ), publicada 
 - Dataset `rfb-cnpj/empresas`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Empresas0.parquet` a `Empresas9.parquet`).
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
-- **Defeito: o conversor só lê arquivo de texto com extensão `.csv` ou `.txt` dentro do ZIP**, mas o ZIP real da Receita traz o arquivo sem essa extensão (`K3241.K03200Y0.D60711.EMPRECSV`). Convertido com a versão 0.5.3 do fetcher, o ZIP real termina em erro (`contains no data files (.csv/.txt)`). O esquema de referência e as conferências desta página vieram de amostras com o arquivo do ZIP renomeado para `.csv`.
+- O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`K3241.K03200Y9.D61010.EMPRECSV`).
 - `capital_social` fica texto com vírgula decimal (`20000,00`): o módulo de leitura do fetcher converte para decimal, mas o conversor do lake não.
 
 ## Cuidados de uso
 
-- **A conversão atual não aceita o ZIP como a Receita o publica.** O arquivo dentro do ZIP não termina em `.csv`/`.txt` (`K3241.K03200Y0.D60711.EMPRECSV`), e o conversor recusa o ZIP com `contains no data files`. Conferido com um ZIP real de 2026-10 em 2026-11-10. Os testes do fetcher passam porque usam um arquivo `.CSV`.
+- **Conversão do ZIP real conferida.** O arquivo `Empresas9` de 2026-10, como a Receita o publica, foi convertido sem erro: 4.494.860 registros no bruto e 4.494.860 linhas no Parquet. Os testes do fetcher cobrem o nome de arquivo sem extensão.
 - **A razão social do empresário individual carrega o CPF completo.** Na amostra de 2023-05, 101.767 de 150.000 razões sociais terminam em 11 dígitos (83.523 em 2026-10); todas as 101.767 estão na natureza `2135` (Empresário Individual) e têm dígitos verificadores de CPF válidos, ou seja, são o CPF da pessoa, sem máscara. A máscara que a Receita aplica nos sócios não vale para este campo (conferido em 2026-11-10).
 - **Texto, não número.** `capital_social` é texto com vírgula (`20000,00`); `cnpj_basico` tem zeros à esquerda. Converta com `REPLACE(capital_social, ',', '.')::DECIMAL(20,2)`. A unidade do capital não vem informada pela fonte.
 - **Cada competência é um retrato completo.** A mesma empresa aparece em todas as competências em que existe; não some entre competências.

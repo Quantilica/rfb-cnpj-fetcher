@@ -122,12 +122,12 @@ Os estabelecimentos do CNPJ: a matriz e cada filial de uma empresa, com o CNPJ c
 - Dataset `rfb-cnpj/estabelecimentos`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Estabelecimentos0.parquet` a `Estabelecimentos9.parquet`).
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
-- **Defeito: o conversor só lê arquivo de texto com extensão `.csv` ou `.txt` dentro do ZIP**, mas o ZIP real da Receita traz o arquivo sem essa extensão (`K3241.K03200Y0.D60711.ESTABELE`). Convertido com a versão 0.5.3 do fetcher, o ZIP real termina em erro (`contains no data files (.csv/.txt)`). O esquema de referência e as conferências desta página vieram de amostras com o arquivo do ZIP renomeado para `.csv`.
+- O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`K3241.K03200Y9.D61010.ESTABELE`).
 - Os complementos de endereço com quebra de linha entre aspas são lidos por uma só thread do DuckDB (`parallel=false`); numa amostra de 1,5 milhão de linhas não houve registro perdido.
 
 ## Cuidados de uso
 
-- **A conversão atual não aceita o ZIP como a Receita o publica.** O arquivo dentro do ZIP não termina em `.csv`/`.txt` (`K3241.K03200Y0.D60711.ESTABELE`), e o conversor recusa o ZIP com `contains no data files`. Conferido com um ZIP real de 2026-10 em 2026-11-10. Os testes do fetcher passam porque usam um arquivo `.CSV`.
+- **Conversão do ZIP real conferida.** O arquivo `Estabelecimentos9` de 2026-10, como a Receita o publica, foi convertido sem erro: 4.753.435 registros no bruto e 4.753.435 linhas no Parquet. Os testes do fetcher cobrem o nome de arquivo sem extensão.
 - **Endereço, telefone e e-mail são dados de contato.** Em empresas individuais podem ser dados da pessoa; a página os lista no cabeçalho como inventário.
 - **O CNPJ completo se monta com três colunas.** `cnpj_basico || cnpj_ordem || cnpj_dv` tem 14 dígitos.
 - **Cada competência é um retrato completo e baixados continuam.** Estabelecimentos com situação `08` (baixada) permanecem nas competências seguintes; filtre `situacao_cadastral = '02'` para os ativos. A fonte descreve `2` para ativa; os dados trazem `02`.

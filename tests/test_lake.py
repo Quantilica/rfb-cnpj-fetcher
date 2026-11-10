@@ -28,12 +28,12 @@ def _line(*fields: str) -> str:
     return ";".join('"' + f.replace('"', '""') + '"' for f in fields)
 
 
-def _zip(path: Path, lines: list[str]) -> Path:
+def _zip(
+    path: Path, lines: list[str], member: str = "K3241.K03200Y0.D61011.CSV"
+) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
-        archive.writestr(
-            "K3241.K03200Y0.D61011.CSV", "\n".join(lines).encode("latin-1")
-        )
+        archive.writestr(member, "\n".join(lines).encode("latin-1"))
     return path
 
 
@@ -179,3 +179,49 @@ def test_cli_convert(raw_data: Path, tmp_path: Path) -> None:
     )
     assert result.exit_code == 0
     assert (lake_dir / SOURCE_ID / "cnaes").exists()
+
+
+@pytest.mark.parametrize(
+    ("dataset", "zip_name", "member", "lines", "key", "esperado"),
+    [
+        (
+            "empresas",
+            "Empresas0@20261013.zip",
+            "K3241.K03200Y0.D60711.EMPRECSV",
+            [_line("00000003", "EMPRESA TESTE", "2062", "49", "1,00", "01", "")],
+            "cnpj_basico",
+            ["00000003"],
+        ),
+        (
+            "simples",
+            "Simples@20261013.zip",
+            "F.K03200$W.SIMPLES.CSV.D60711",
+            [_line("00000004", "S", "20200101", "00000000", "N", "0", "0")],
+            "cnpj_basico",
+            ["00000004"],
+        ),
+    ],
+)
+def test_convert_membro_real_sem_extensao_csv(
+    tmp_path: Path,
+    dataset: str,
+    zip_name: str,
+    member: str,
+    lines: list[str],
+    key: str,
+    esperado: list[str],
+) -> None:
+    """Os ZIPs reais da Receita trazem o membro sem extensão ``.csv``/``.txt``.
+
+    Exige ``quantilica-analytics>=0.11.2``; nas versões 0.10.0 a 0.11.1 a
+    conversão terminava em ``contains no data files (.csv/.txt)``.
+    """
+    root = tmp_path / "raw"
+    _zip(root / "2026-10" / dataset / zip_name, lines, member)
+
+    res = converter.convert(root, tmp_path / "lake")
+
+    assert not res.errors
+    assert res.converted == 1
+    df = scan_dataset(tmp_path / "lake" / SOURCE_ID / dataset).collect()
+    assert df[key].to_list() == esperado

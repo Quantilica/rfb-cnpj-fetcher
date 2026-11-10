@@ -95,11 +95,11 @@ O quadro de sócios e administradores (QSA) do CNPJ: para cada empresa, as pesso
 - Dataset `rfb-cnpj/socios`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Socios0.parquet` a `Socios9.parquet`).
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
-- **Defeito: o conversor só lê arquivo de texto com extensão `.csv` ou `.txt` dentro do ZIP**, mas o ZIP real da Receita traz o arquivo sem essa extensão (`K3241.K03200Y0.D60711.SOCIOCSV`). Convertido com a versão 0.5.3 do fetcher, o ZIP real termina em erro (`contains no data files (.csv/.txt)`). O esquema de referência e as conferências desta página vieram de amostras com o arquivo do ZIP renomeado para `.csv`.
+- O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`K3241.K03200Y9.D61010.SOCIOCSV`).
 
 ## Cuidados de uso
 
-- **A conversão atual não aceita o ZIP como a Receita o publica.** O arquivo dentro do ZIP não termina em `.csv`/`.txt` (`K3241.K03200Y0.D60711.SOCIOCSV`), e o conversor recusa o ZIP com `contains no data files`. Conferido com um ZIP real de 2026-10 em 2026-11-10. Os testes do fetcher passam porque usam um arquivo `.CSV`.
+- **Conversão do ZIP real conferida.** O arquivo `Socios9` de 2026-10, como a Receita o publica, foi convertido sem erro: 2.019.150 registros no bruto e 2.019.150 linhas no Parquet. Os testes do fetcher cobrem o nome de arquivo sem extensão.
 - **Dados pessoais.** A tabela traz nome de pessoas físicas, CPF parcialmente mascarado, nome e CPF mascarado do representante legal e faixa etária. O cabeçalho lista as colunas como inventário; os exemplos desta página não reproduzem valores.
 - **O CPF mascarado não identifica a pessoa.** Os seis dígitos do meio repetem entre pessoas diferentes; não use `cnpj_cpf_socio` como identificador de pessoa.
 - **O documento do sócio PJ mudou em 2026-08.** Até 2026-07, 14 dígitos (CNPJ completo); a partir de 2026-08, 8 dígitos. Séries históricas de "sócios PJ" que cruzem pelo CNPJ completo precisam tratar as duas formas.

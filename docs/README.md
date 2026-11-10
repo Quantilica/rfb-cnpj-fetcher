@@ -47,4 +47,4 @@ Página de referência: https://www.gov.br/receitafederal/pt-br/assuntos/orienta
 
 ## Conversão
 
-Com a versão 0.5.3 do fetcher, o conversor recusa os ZIPs reais, porque o arquivo dentro deles não tem extensão `.csv` ou `.txt`. Os esquemas desta documentação vêm de amostras com o arquivo renomeado. Veja os cuidados de uso de cada dataset.
+O conversor lê os ZIPs como a Receita os publica, inclusive quando o arquivo de texto dentro deles não tem extensão `.csv` ou `.txt` (`K3241.K03200Y0.D61010.EMPRECSV`, `F.K03200$W.SIMPLES.CSV.D61010`). Isso exige o extra `analysis` com `quantilica-analytics` 0.11.2 ou superior. Conferido com ZIPs de 2026-10: os seis datasets de domínio e `simples` por inteiro, e `Empresas9`, `Estabelecimentos9` e `Socios9` (um dos dez arquivos de cada); nesses, o número de linhas do Parquet é igual ao de registros do bruto. Os demais arquivos de `empresas`, `estabelecimentos` e `socios` não foram convertidos nessa conferência. Os esquemas de referência vêm de amostras convertidas.

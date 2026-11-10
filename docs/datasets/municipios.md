@@ -79,11 +79,11 @@ Tabela de domínio que a Receita publica a cada competência para traduzir o có
 - Dataset `rfb-cnpj/municipios`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Municipios.parquet`).
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
-- **Defeito: o conversor só lê arquivo de texto com extensão `.csv` ou `.txt` dentro do ZIP**, mas o ZIP real da Receita traz o arquivo sem essa extensão (`F.K03200$Z.D60711.MUNICCSV`). Convertido com a versão 0.5.3 do fetcher, o ZIP real termina em erro (`contains no data files (.csv/.txt)`). O esquema de referência e as conferências desta página vieram de amostras com o arquivo do ZIP renomeado para `.csv`.
+- O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`F.K03200$Z.D61010.MUNICCSV`).
 
 ## Cuidados de uso
 
-- **A conversão atual não aceita o ZIP como a Receita o publica.** O arquivo dentro do ZIP não termina em `.csv`/`.txt` (`F.K03200$Z.D60711.MUNICCSV`), e o conversor recusa o ZIP com `contains no data files`. Conferido com um ZIP real de 2026-10 em 2026-11-10. Os testes do fetcher passam porque usam um arquivo `.CSV`.
+- **Conversão do ZIP real conferida.** O arquivo `Municipios` de 2026-10, como a Receita o publica, foi convertido sem erro: 5.572 registros no bruto e 5.572 linhas no Parquet. Os testes do fetcher cobrem o nome de arquivo sem extensão.
 - **Não é o código IBGE.** O código da Receita tem 4 dígitos; o IBGE usa 7. Cruze por nome e UF ou por uma tabela de correspondência externa.
 - **Nomes mudam entre competências.** Entre 2023-05 e 2025-06, seis linhas diferem (grafia do nome ou código); não use o nome como chave histórica.
 - **Cada competência repete a tabela inteira.** Para traduzir um código use a mesma competência do dado, ou a mais recente, e não junte todas as competências sem filtrar `ano` e `mes`.

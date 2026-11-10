@@ -83,11 +83,11 @@ A situação de cada empresa no Simples Nacional e no regime do Microempreendedo
 - Dataset `rfb-cnpj/simples`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Simples.parquet`).
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
-- **Defeito: o conversor só lê arquivo de texto com extensão `.csv` ou `.txt` dentro do ZIP**, mas o ZIP real da Receita traz o arquivo sem essa extensão (`F.K03200$W.SIMPLES.CSV.D60711`). Convertido com a versão 0.5.3 do fetcher, o ZIP real termina em erro (`contains no data files (.csv/.txt)`). O esquema de referência e as conferências desta página vieram de amostras com o arquivo do ZIP renomeado para `.csv`.
+- O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`F.K03200$W.SIMPLES.CSV.D61010`).
 
 ## Cuidados de uso
 
-- **A conversão atual não aceita o ZIP como a Receita o publica.** O arquivo dentro do ZIP não termina em `.csv`/`.txt` (`F.K03200$W.SIMPLES.CSV.D60711`), e o conversor recusa o ZIP com `contains no data files`. Conferido com um ZIP real de 2026-10 em 2026-11-10. Os testes do fetcher passam porque usam um arquivo `.CSV`.
+- **Conversão do ZIP real conferida.** O arquivo `Simples` de 2026-10, como a Receita o publica, foi convertido sem erro: 50.806.102 registros no bruto e 50.806.102 linhas no Parquet. Os testes do fetcher cobrem o nome de arquivo sem extensão.
 - **`00000000` não é nulo.** As datas ausentes ficam como o texto `00000000`; converter com `strptime` sem tratar o valor falha. Use `NULLIF(data, '00000000')`.
 - **Sem dados do Simples = ausência de linha, não `N`.** A tabela só traz as empresas que a Receita listou; cruze com `empresas` por `cnpj_basico` com `LEFT JOIN`.
 - **Exclusão não é fim do regime atual.** Uma empresa pode ter opção, exclusão e nova opção; o arquivo traz o retrato das datas na competência.
