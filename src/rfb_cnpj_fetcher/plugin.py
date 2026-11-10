@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from quantilica.cli.sdk import FetcherApp
+from quantilica.core.registry import FetcherInfo
 from quantilica.core.sync import FreshnessPolicy
 
 from .catalog import GROUP_ALIASES, GROUPS, FileEntry, list_datasets
@@ -42,6 +43,18 @@ def path_builder(
 fetcher = FetcherApp(
     name="rfb-cnpj-fetcher",
     help="Dados públicos de CNPJ da Receita Federal do Brasil.",
+    info=FetcherInfo(
+        id="rfb-cnpj",
+        nome="Receita Federal - Dados Públicos do CNPJ",
+        aliases=("rfb",),
+        orgao="Receita Federal do Brasil (RFB)",
+        homepage=(
+            "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-"
+            "tributaria/cadastros/consultas/dados-publicos-cnpj"
+        ),
+        cadencia="monthly",
+        dominio="empresas",
+    ),
     groups_dict=GROUPS,
     aliases_dict=GROUP_ALIASES,
     list_datasets=list_datasets,
