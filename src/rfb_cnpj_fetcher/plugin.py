@@ -48,6 +48,10 @@ fetcher = FetcherApp(
         nome="Receita Federal - Dados Públicos do CNPJ",
         aliases=("rfb",),
         orgao="Receita Federal do Brasil (RFB)",
+        licenca=(
+            "Sem licença declarada; dados públicos pela Lei 12.527/2011 (LAI) "
+            "e Decreto 8.777/2016"
+        ),
         homepage=(
             "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-"
             "tributaria/cadastros/consultas/dados-publicos-cnpj"
