@@ -57,7 +57,7 @@ fetcher = FetcherApp(
             "tributaria/cadastros/consultas/dados-publicos-cnpj"
         ),
         cadencia="monthly",
-        dominio="empresas",
+        dominio="fiscal",
     ),
     groups_dict=GROUPS,
     aliases_dict=GROUP_ALIASES,
