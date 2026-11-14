@@ -7,6 +7,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.7.0] - 2026-11-14
+
 ### Alterado
 - Domínio temático do registro passa de `empresas` para `fiscal`, igual à área da fonte no hub do portal.
 - Requer `quantilica-core>=0.19.0` (e `quantilica-cli>=0.17.0` como host).
