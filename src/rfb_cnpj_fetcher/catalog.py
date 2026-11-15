@@ -135,7 +135,7 @@ def get_share_token(force_refresh: bool = False) -> str:
     try:
         res = _client.get(BASE_URL)
         match = re.search(r"/s/([A-Za-z0-9]+)", str(res.url))
-    except Exception:
+    except Exception:  # noqa: BLE001 - falha de rede cai no fallback warning abaixo
         match = None
     if not match:
         logger.warning(
