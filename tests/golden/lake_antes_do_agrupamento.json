@@ -1,0 +1,1485 @@
+{
+ "contagem_de_arquivos": {
+  "cnaes": {
+   "2026-09": 1,
+   "2026-10": 1
+  },
+  "empresas": {
+   "2026-09": 2,
+   "2026-10": 3
+  },
+  "estabelecimentos": {
+   "2026-10": 2
+  },
+  "simples": {
+   "2026-10": 1
+  },
+  "socios": {
+   "2026-10": 2
+  }
+ },
+ "lake": {
+  "cnaes": {
+   "colunas": [
+    [
+     "codigo",
+     "String"
+    ],
+    [
+     "descricao",
+     "String"
+    ],
+    [
+     "ano",
+     "Int64"
+    ],
+    [
+     "mes",
+     "String"
+    ]
+   ],
+   "periodos": {
+    "2026-09": {
+     "colunas": [
+      [
+       "codigo",
+       "String"
+      ],
+      [
+       "descricao",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000000",
+       "descri-2026-09-None-0"
+      ],
+      [
+       "00000001",
+       "descri-2026-09-None-1"
+      ],
+      [
+       "00000002",
+       "descri-2026-09-None-2"
+      ],
+      [
+       "00000003",
+       "descri-2026-09-None-3"
+      ]
+     ],
+     "linhas": 4
+    },
+    "2026-10": {
+     "colunas": [
+      [
+       "codigo",
+       "String"
+      ],
+      [
+       "descricao",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000000",
+       "descri-2026-10-None-0"
+      ],
+      [
+       "00000001",
+       "descri-2026-10-None-1"
+      ],
+      [
+       "00000002",
+       "descri-2026-10-None-2"
+      ],
+      [
+       "00000003",
+       "descri-2026-10-None-3"
+      ]
+     ],
+     "linhas": 4
+    }
+   }
+  },
+  "empresas": {
+   "colunas": [
+    [
+     "cnpj_basico",
+     "String"
+    ],
+    [
+     "razao_social",
+     "String"
+    ],
+    [
+     "natureza_juridica",
+     "String"
+    ],
+    [
+     "qualificacao_responsavel",
+     "String"
+    ],
+    [
+     "capital_social",
+     "String"
+    ],
+    [
+     "porte_empresa",
+     "String"
+    ],
+    [
+     "ente_federativo_responsavel",
+     "String"
+    ],
+    [
+     "ano",
+     "Int64"
+    ],
+    [
+     "mes",
+     "String"
+    ]
+   ],
+   "periodos": {
+    "2026-09": {
+     "colunas": [
+      [
+       "cnpj_basico",
+       "String"
+      ],
+      [
+       "razao_social",
+       "String"
+      ],
+      [
+       "natureza_juridica",
+       "String"
+      ],
+      [
+       "qualificacao_responsavel",
+       "String"
+      ],
+      [
+       "capital_social",
+       "String"
+      ],
+      [
+       "porte_empresa",
+       "String"
+      ],
+      [
+       "ente_federativo_responsavel",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000000",
+       "razao_-2026-09-0-0",
+       "nature-2026-09-0-0",
+       "qualif-2026-09-0-0",
+       "capita-2026-09-0-0",
+       "CTRLC1",
+       "ente_f-2026-09-0-0"
+      ],
+      [
+       "00000001",
+       "razao_-2026-09-0-1",
+       "nature-2026-09-0-1",
+       "qualif-2026-09-0-1",
+       "D'AGUA COMERCIO LTDA",
+       "porte_-2026-09-0-1",
+       "ente_f-2026-09-0-1"
+      ],
+      [
+       "00000002",
+       "razao_-2026-09-0-2",
+       "nature-2026-09-0-2",
+       "RUA A;B (ponto e vírgula)",
+       "capita-2026-09-0-2",
+       "porte_-2026-09-0-2",
+       "ente_f-2026-09-0-2"
+      ],
+      [
+       "00000003",
+       "razao_-2026-09-0-3",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "qualif-2026-09-0-3",
+       "capita-2026-09-0-3",
+       "porte_-2026-09-0-3",
+       "ente_f-2026-09-0-3"
+      ],
+      [
+       "00001000",
+       "razao_-2026-09-1-0",
+       "nature-2026-09-1-0",
+       "qualif-2026-09-1-0",
+       "capita-2026-09-1-0",
+       "",
+       "ente_f-2026-09-1-0"
+      ],
+      [
+       "00001001",
+       "razao_-2026-09-1-1",
+       "nature-2026-09-1-1",
+       "qualif-2026-09-1-1",
+       "BAR \"DO ZE\" O'NEIL",
+       "porte_-2026-09-1-1",
+       "ente_f-2026-09-1-1"
+      ],
+      [
+       "00001002",
+       "razao_-2026-09-1-2",
+       "nature-2026-09-1-2",
+       "LINHA UM\nLINHA DOIS",
+       "capita-2026-09-1-2",
+       "porte_-2026-09-1-2",
+       "ente_f-2026-09-1-2"
+      ],
+      [
+       "00001003",
+       "razao_-2026-09-1-3",
+       "CTRLC1",
+       "qualif-2026-09-1-3",
+       "capita-2026-09-1-3",
+       "porte_-2026-09-1-3",
+       "ente_f-2026-09-1-3"
+      ],
+      [
+       "00001004",
+       "D'AGUA COMERCIO LTDA",
+       "nature-2026-09-1-4",
+       "qualif-2026-09-1-4",
+       "capita-2026-09-1-4",
+       "porte_-2026-09-1-4",
+       "CTRLC1"
+      ],
+      [
+       "00001005",
+       "razao_-2026-09-1-5",
+       "nature-2026-09-1-5",
+       "qualif-2026-09-1-5",
+       "capita-2026-09-1-5",
+       "D'AGUA COMERCIO LTDA",
+       "ente_f-2026-09-1-5"
+      ],
+      [
+       "00001006",
+       "razao_-2026-09-1-6",
+       "nature-2026-09-1-6",
+       "qualif-2026-09-1-6",
+       "RUA A;B (ponto e vírgula)",
+       "porte_-2026-09-1-6",
+       "ente_f-2026-09-1-6"
+      ]
+     ],
+     "linhas": 11
+    },
+    "2026-10": {
+     "colunas": [
+      [
+       "cnpj_basico",
+       "String"
+      ],
+      [
+       "razao_social",
+       "String"
+      ],
+      [
+       "natureza_juridica",
+       "String"
+      ],
+      [
+       "qualificacao_responsavel",
+       "String"
+      ],
+      [
+       "capital_social",
+       "String"
+      ],
+      [
+       "porte_empresa",
+       "String"
+      ],
+      [
+       "ente_federativo_responsavel",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000000",
+       "razao_-2026-10-0-0",
+       "nature-2026-10-0-0",
+       "qualif-2026-10-0-0",
+       "capita-2026-10-0-0",
+       "CTRLC1",
+       "ente_f-2026-10-0-0"
+      ],
+      [
+       "00000001",
+       "razao_-2026-10-0-1",
+       "nature-2026-10-0-1",
+       "qualif-2026-10-0-1",
+       "D'AGUA COMERCIO LTDA",
+       "porte_-2026-10-0-1",
+       "ente_f-2026-10-0-1"
+      ],
+      [
+       "00000002",
+       "razao_-2026-10-0-2",
+       "nature-2026-10-0-2",
+       "RUA A;B (ponto e vírgula)",
+       "capita-2026-10-0-2",
+       "porte_-2026-10-0-2",
+       "ente_f-2026-10-0-2"
+      ],
+      [
+       "00000003",
+       "razao_-2026-10-0-3",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "qualif-2026-10-0-3",
+       "capita-2026-10-0-3",
+       "porte_-2026-10-0-3",
+       "ente_f-2026-10-0-3"
+      ],
+      [
+       "00001000",
+       "razao_-2026-10-1-0",
+       "nature-2026-10-1-0",
+       "qualif-2026-10-1-0",
+       "capita-2026-10-1-0",
+       "",
+       "ente_f-2026-10-1-0"
+      ],
+      [
+       "00001001",
+       "razao_-2026-10-1-1",
+       "nature-2026-10-1-1",
+       "qualif-2026-10-1-1",
+       "BAR \"DO ZE\" O'NEIL",
+       "porte_-2026-10-1-1",
+       "ente_f-2026-10-1-1"
+      ],
+      [
+       "00001002",
+       "razao_-2026-10-1-2",
+       "nature-2026-10-1-2",
+       "LINHA UM\nLINHA DOIS",
+       "capita-2026-10-1-2",
+       "porte_-2026-10-1-2",
+       "ente_f-2026-10-1-2"
+      ],
+      [
+       "00001003",
+       "razao_-2026-10-1-3",
+       "CTRLC1",
+       "qualif-2026-10-1-3",
+       "capita-2026-10-1-3",
+       "porte_-2026-10-1-3",
+       "ente_f-2026-10-1-3"
+      ],
+      [
+       "00001004",
+       "D'AGUA COMERCIO LTDA",
+       "nature-2026-10-1-4",
+       "qualif-2026-10-1-4",
+       "capita-2026-10-1-4",
+       "porte_-2026-10-1-4",
+       "CTRLC1"
+      ],
+      [
+       "00001005",
+       "razao_-2026-10-1-5",
+       "nature-2026-10-1-5",
+       "qualif-2026-10-1-5",
+       "capita-2026-10-1-5",
+       "D'AGUA COMERCIO LTDA",
+       "ente_f-2026-10-1-5"
+      ],
+      [
+       "00001006",
+       "razao_-2026-10-1-6",
+       "nature-2026-10-1-6",
+       "qualif-2026-10-1-6",
+       "RUA A;B (ponto e vírgula)",
+       "porte_-2026-10-1-6",
+       "ente_f-2026-10-1-6"
+      ],
+      [
+       "00002000",
+       "razao_-2026-10-2-0",
+       "nature-2026-10-2-0",
+       "qualif-2026-10-2-0",
+       "capita-2026-10-2-0",
+       "D'AGUA COMERCIO LTDA",
+       "ente_f-2026-10-2-0"
+      ],
+      [
+       "00002001",
+       "razao_-2026-10-2-1",
+       "nature-2026-10-2-1",
+       "qualif-2026-10-2-1",
+       "RUA A;B (ponto e vírgula)",
+       "porte_-2026-10-2-1",
+       "ente_f-2026-10-2-1"
+      ],
+      [
+       "00002002",
+       "razao_-2026-10-2-2",
+       "nature-2026-10-2-2",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "capita-2026-10-2-2",
+       "porte_-2026-10-2-2",
+       "ente_f-2026-10-2-2"
+      ],
+      [
+       "00002003",
+       "razao_-2026-10-2-3",
+       "",
+       "qualif-2026-10-2-3",
+       "capita-2026-10-2-3",
+       "porte_-2026-10-2-3",
+       "ente_f-2026-10-2-3"
+      ],
+      [
+       "00002004",
+       "BAR \"DO ZE\" O'NEIL",
+       "nature-2026-10-2-4",
+       "qualif-2026-10-2-4",
+       "capita-2026-10-2-4",
+       "porte_-2026-10-2-4",
+       ""
+      ],
+      [
+       "00002005",
+       "razao_-2026-10-2-5",
+       "nature-2026-10-2-5",
+       "qualif-2026-10-2-5",
+       "capita-2026-10-2-5",
+       "BAR \"DO ZE\" O'NEIL",
+       "ente_f-2026-10-2-5"
+      ],
+      [
+       "00002006",
+       "razao_-2026-10-2-6",
+       "nature-2026-10-2-6",
+       "qualif-2026-10-2-6",
+       "LINHA UM\nLINHA DOIS",
+       "porte_-2026-10-2-6",
+       "ente_f-2026-10-2-6"
+      ],
+      [
+       "00002007",
+       "razao_-2026-10-2-7",
+       "nature-2026-10-2-7",
+       "CTRLC1",
+       "capita-2026-10-2-7",
+       "porte_-2026-10-2-7",
+       "ente_f-2026-10-2-7"
+      ],
+      [
+       "00002008",
+       "razao_-2026-10-2-8",
+       "D'AGUA COMERCIO LTDA",
+       "qualif-2026-10-2-8",
+       "capita-2026-10-2-8",
+       "porte_-2026-10-2-8",
+       "ente_f-2026-10-2-8"
+      ],
+      [
+       "00002009",
+       "RUA A;B (ponto e vírgula)",
+       "nature-2026-10-2-9",
+       "qualif-2026-10-2-9",
+       "capita-2026-10-2-9",
+       "porte_-2026-10-2-9",
+       "D'AGUA COMERCIO LTDA"
+      ]
+     ],
+     "linhas": 21
+    }
+   }
+  },
+  "estabelecimentos": {
+   "colunas": [
+    [
+     "cnpj_basico",
+     "String"
+    ],
+    [
+     "cnpj_ordem",
+     "String"
+    ],
+    [
+     "cnpj_dv",
+     "String"
+    ],
+    [
+     "identificador_matriz_filial",
+     "String"
+    ],
+    [
+     "nome_fantasia",
+     "String"
+    ],
+    [
+     "situacao_cadastral",
+     "String"
+    ],
+    [
+     "data_situacao_cadastral",
+     "String"
+    ],
+    [
+     "motivo_situacao_cadastral",
+     "String"
+    ],
+    [
+     "nome_cidade_exterior",
+     "String"
+    ],
+    [
+     "pais",
+     "String"
+    ],
+    [
+     "data_inicio_atividade",
+     "String"
+    ],
+    [
+     "cnae_fiscal_principal",
+     "String"
+    ],
+    [
+     "cnae_fiscal_secundaria",
+     "String"
+    ],
+    [
+     "tipo_logradouro",
+     "String"
+    ],
+    [
+     "logradouro",
+     "String"
+    ],
+    [
+     "numero",
+     "String"
+    ],
+    [
+     "complemento",
+     "String"
+    ],
+    [
+     "bairro",
+     "String"
+    ],
+    [
+     "cep",
+     "String"
+    ],
+    [
+     "uf",
+     "String"
+    ],
+    [
+     "municipio",
+     "String"
+    ],
+    [
+     "ddd1",
+     "String"
+    ],
+    [
+     "telefone1",
+     "String"
+    ],
+    [
+     "ddd2",
+     "String"
+    ],
+    [
+     "telefone2",
+     "String"
+    ],
+    [
+     "ddd_fax",
+     "String"
+    ],
+    [
+     "fax",
+     "String"
+    ],
+    [
+     "correio_eletronico",
+     "String"
+    ],
+    [
+     "situacao_especial",
+     "String"
+    ],
+    [
+     "data_situacao_especial",
+     "String"
+    ],
+    [
+     "ano",
+     "Int64"
+    ],
+    [
+     "mes",
+     "String"
+    ]
+   ],
+   "periodos": {
+    "2026-10": {
+     "colunas": [
+      [
+       "cnpj_basico",
+       "String"
+      ],
+      [
+       "cnpj_ordem",
+       "String"
+      ],
+      [
+       "cnpj_dv",
+       "String"
+      ],
+      [
+       "identificador_matriz_filial",
+       "String"
+      ],
+      [
+       "nome_fantasia",
+       "String"
+      ],
+      [
+       "situacao_cadastral",
+       "String"
+      ],
+      [
+       "data_situacao_cadastral",
+       "String"
+      ],
+      [
+       "motivo_situacao_cadastral",
+       "String"
+      ],
+      [
+       "nome_cidade_exterior",
+       "String"
+      ],
+      [
+       "pais",
+       "String"
+      ],
+      [
+       "data_inicio_atividade",
+       "String"
+      ],
+      [
+       "cnae_fiscal_principal",
+       "String"
+      ],
+      [
+       "cnae_fiscal_secundaria",
+       "String"
+      ],
+      [
+       "tipo_logradouro",
+       "String"
+      ],
+      [
+       "logradouro",
+       "String"
+      ],
+      [
+       "numero",
+       "String"
+      ],
+      [
+       "complemento",
+       "String"
+      ],
+      [
+       "bairro",
+       "String"
+      ],
+      [
+       "cep",
+       "String"
+      ],
+      [
+       "uf",
+       "String"
+      ],
+      [
+       "municipio",
+       "String"
+      ],
+      [
+       "ddd1",
+       "String"
+      ],
+      [
+       "telefone1",
+       "String"
+      ],
+      [
+       "ddd2",
+       "String"
+      ],
+      [
+       "telefone2",
+       "String"
+      ],
+      [
+       "ddd_fax",
+       "String"
+      ],
+      [
+       "fax",
+       "String"
+      ],
+      [
+       "correio_eletronico",
+       "String"
+      ],
+      [
+       "situacao_especial",
+       "String"
+      ],
+      [
+       "data_situacao_especial",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000000",
+       "cnpj_o-2026-10-0-0",
+       "cnpj_d-2026-10-0-0",
+       "identi-2026-10-0-0",
+       "nome_f-2026-10-0-0",
+       "CTRLC1",
+       "data_s-2026-10-0-0",
+       "motivo-2026-10-0-0",
+       "nome_c-2026-10-0-0",
+       "pais-2026-10-0-0",
+       "LINHA UM\nLINHA DOIS",
+       "cnae_f-2026-10-0-0",
+       "cnae_f-2026-10-0-0",
+       "tipo_l-2026-10-0-0",
+       "lograd-2026-10-0-0",
+       "BAR \"DO ZE\" O'NEIL",
+       "comple-2026-10-0-0",
+       "bairro-2026-10-0-0",
+       "cep-2026-10-0-0",
+       "uf-2026-10-0-0",
+       "",
+       "ddd1-2026-10-0-0",
+       "telefo-2026-10-0-0",
+       "ddd2-2026-10-0-0",
+       "telefo-2026-10-0-0",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "fax-2026-10-0-0",
+       "correi-2026-10-0-0",
+       "situac-2026-10-0-0",
+       "data_s-2026-10-0-0"
+      ],
+      [
+       "00000001",
+       "cnpj_o-2026-10-0-1",
+       "cnpj_d-2026-10-0-1",
+       "identi-2026-10-0-1",
+       "D'AGUA COMERCIO LTDA",
+       "situac-2026-10-0-1",
+       "data_s-2026-10-0-1",
+       "motivo-2026-10-0-1",
+       "nome_c-2026-10-0-1",
+       "CTRLC1",
+       "data_i-2026-10-0-1",
+       "cnae_f-2026-10-0-1",
+       "cnae_f-2026-10-0-1",
+       "tipo_l-2026-10-0-1",
+       "LINHA UM\nLINHA DOIS",
+       "numero-2026-10-0-1",
+       "comple-2026-10-0-1",
+       "bairro-2026-10-0-1",
+       "cep-2026-10-0-1",
+       "BAR \"DO ZE\" O'NEIL",
+       "munici-2026-10-0-1",
+       "ddd1-2026-10-0-1",
+       "telefo-2026-10-0-1",
+       "ddd2-2026-10-0-1",
+       "",
+       "ddd_fa-2026-10-0-1",
+       "fax-2026-10-0-1",
+       "correi-2026-10-0-1",
+       "situac-2026-10-0-1",
+       "AÇÚCAR E ÁLCOOL S/A"
+      ],
+      [
+       "00000002",
+       "cnpj_o-2026-10-0-2",
+       "cnpj_d-2026-10-0-2",
+       "RUA A;B (ponto e vírgula)",
+       "nome_f-2026-10-0-2",
+       "situac-2026-10-0-2",
+       "data_s-2026-10-0-2",
+       "motivo-2026-10-0-2",
+       "D'AGUA COMERCIO LTDA",
+       "pais-2026-10-0-2",
+       "data_i-2026-10-0-2",
+       "cnae_f-2026-10-0-2",
+       "cnae_f-2026-10-0-2",
+       "CTRLC1",
+       "lograd-2026-10-0-2",
+       "numero-2026-10-0-2",
+       "comple-2026-10-0-2",
+       "bairro-2026-10-0-2",
+       "LINHA UM\nLINHA DOIS",
+       "uf-2026-10-0-2",
+       "munici-2026-10-0-2",
+       "ddd1-2026-10-0-2",
+       "telefo-2026-10-0-2",
+       "BAR \"DO ZE\" O'NEIL",
+       "telefo-2026-10-0-2",
+       "ddd_fa-2026-10-0-2",
+       "fax-2026-10-0-2",
+       "correi-2026-10-0-2",
+       "",
+       "data_s-2026-10-0-2"
+      ],
+      [
+       "00000003",
+       "cnpj_o-2026-10-0-3",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "identi-2026-10-0-3",
+       "nome_f-2026-10-0-3",
+       "situac-2026-10-0-3",
+       "data_s-2026-10-0-3",
+       "RUA A;B (ponto e vírgula)",
+       "nome_c-2026-10-0-3",
+       "pais-2026-10-0-3",
+       "data_i-2026-10-0-3",
+       "cnae_f-2026-10-0-3",
+       "D'AGUA COMERCIO LTDA",
+       "tipo_l-2026-10-0-3",
+       "lograd-2026-10-0-3",
+       "numero-2026-10-0-3",
+       "comple-2026-10-0-3",
+       "CTRLC1",
+       "cep-2026-10-0-3",
+       "uf-2026-10-0-3",
+       "munici-2026-10-0-3",
+       "ddd1-2026-10-0-3",
+       "LINHA UM\nLINHA DOIS",
+       "ddd2-2026-10-0-3",
+       "telefo-2026-10-0-3",
+       "ddd_fa-2026-10-0-3",
+       "fax-2026-10-0-3",
+       "BAR \"DO ZE\" O'NEIL",
+       "situac-2026-10-0-3",
+       "data_s-2026-10-0-3"
+      ],
+      [
+       "00001000",
+       "cnpj_o-2026-10-1-0",
+       "cnpj_d-2026-10-1-0",
+       "identi-2026-10-1-0",
+       "nome_f-2026-10-1-0",
+       "",
+       "data_s-2026-10-1-0",
+       "motivo-2026-10-1-0",
+       "nome_c-2026-10-1-0",
+       "pais-2026-10-1-0",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "cnae_f-2026-10-1-0",
+       "cnae_f-2026-10-1-0",
+       "tipo_l-2026-10-1-0",
+       "lograd-2026-10-1-0",
+       "RUA A;B (ponto e vírgula)",
+       "comple-2026-10-1-0",
+       "bairro-2026-10-1-0",
+       "cep-2026-10-1-0",
+       "uf-2026-10-1-0",
+       "D'AGUA COMERCIO LTDA",
+       "ddd1-2026-10-1-0",
+       "telefo-2026-10-1-0",
+       "ddd2-2026-10-1-0",
+       "telefo-2026-10-1-0",
+       "CTRLC1",
+       "fax-2026-10-1-0",
+       "correi-2026-10-1-0",
+       "situac-2026-10-1-0",
+       "data_s-2026-10-1-0"
+      ],
+      [
+       "00001001",
+       "cnpj_o-2026-10-1-1",
+       "cnpj_d-2026-10-1-1",
+       "identi-2026-10-1-1",
+       "BAR \"DO ZE\" O'NEIL",
+       "situac-2026-10-1-1",
+       "data_s-2026-10-1-1",
+       "motivo-2026-10-1-1",
+       "nome_c-2026-10-1-1",
+       "",
+       "data_i-2026-10-1-1",
+       "cnae_f-2026-10-1-1",
+       "cnae_f-2026-10-1-1",
+       "tipo_l-2026-10-1-1",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "numero-2026-10-1-1",
+       "comple-2026-10-1-1",
+       "bairro-2026-10-1-1",
+       "cep-2026-10-1-1",
+       "RUA A;B (ponto e vírgula)",
+       "munici-2026-10-1-1",
+       "ddd1-2026-10-1-1",
+       "telefo-2026-10-1-1",
+       "ddd2-2026-10-1-1",
+       "D'AGUA COMERCIO LTDA",
+       "ddd_fa-2026-10-1-1",
+       "fax-2026-10-1-1",
+       "correi-2026-10-1-1",
+       "situac-2026-10-1-1",
+       "CTRLC1"
+      ],
+      [
+       "00001002",
+       "cnpj_o-2026-10-1-2",
+       "cnpj_d-2026-10-1-2",
+       "LINHA UM\nLINHA DOIS",
+       "nome_f-2026-10-1-2",
+       "situac-2026-10-1-2",
+       "data_s-2026-10-1-2",
+       "motivo-2026-10-1-2",
+       "BAR \"DO ZE\" O'NEIL",
+       "pais-2026-10-1-2",
+       "data_i-2026-10-1-2",
+       "cnae_f-2026-10-1-2",
+       "cnae_f-2026-10-1-2",
+       "",
+       "lograd-2026-10-1-2",
+       "numero-2026-10-1-2",
+       "comple-2026-10-1-2",
+       "bairro-2026-10-1-2",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "uf-2026-10-1-2",
+       "munici-2026-10-1-2",
+       "ddd1-2026-10-1-2",
+       "telefo-2026-10-1-2",
+       "RUA A;B (ponto e vírgula)",
+       "telefo-2026-10-1-2",
+       "ddd_fa-2026-10-1-2",
+       "fax-2026-10-1-2",
+       "correi-2026-10-1-2",
+       "D'AGUA COMERCIO LTDA",
+       "data_s-2026-10-1-2"
+      ],
+      [
+       "00001003",
+       "cnpj_o-2026-10-1-3",
+       "CTRLC1",
+       "identi-2026-10-1-3",
+       "nome_f-2026-10-1-3",
+       "situac-2026-10-1-3",
+       "data_s-2026-10-1-3",
+       "LINHA UM\nLINHA DOIS",
+       "nome_c-2026-10-1-3",
+       "pais-2026-10-1-3",
+       "data_i-2026-10-1-3",
+       "cnae_f-2026-10-1-3",
+       "BAR \"DO ZE\" O'NEIL",
+       "tipo_l-2026-10-1-3",
+       "lograd-2026-10-1-3",
+       "numero-2026-10-1-3",
+       "comple-2026-10-1-3",
+       "",
+       "cep-2026-10-1-3",
+       "uf-2026-10-1-3",
+       "munici-2026-10-1-3",
+       "ddd1-2026-10-1-3",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "ddd2-2026-10-1-3",
+       "telefo-2026-10-1-3",
+       "ddd_fa-2026-10-1-3",
+       "fax-2026-10-1-3",
+       "RUA A;B (ponto e vírgula)",
+       "situac-2026-10-1-3",
+       "data_s-2026-10-1-3"
+      ],
+      [
+       "00001004",
+       "D'AGUA COMERCIO LTDA",
+       "cnpj_d-2026-10-1-4",
+       "identi-2026-10-1-4",
+       "nome_f-2026-10-1-4",
+       "situac-2026-10-1-4",
+       "CTRLC1",
+       "motivo-2026-10-1-4",
+       "nome_c-2026-10-1-4",
+       "pais-2026-10-1-4",
+       "data_i-2026-10-1-4",
+       "LINHA UM\nLINHA DOIS",
+       "cnae_f-2026-10-1-4",
+       "tipo_l-2026-10-1-4",
+       "lograd-2026-10-1-4",
+       "numero-2026-10-1-4",
+       "BAR \"DO ZE\" O'NEIL",
+       "bairro-2026-10-1-4",
+       "cep-2026-10-1-4",
+       "uf-2026-10-1-4",
+       "munici-2026-10-1-4",
+       "",
+       "telefo-2026-10-1-4",
+       "ddd2-2026-10-1-4",
+       "telefo-2026-10-1-4",
+       "ddd_fa-2026-10-1-4",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "correi-2026-10-1-4",
+       "situac-2026-10-1-4",
+       "data_s-2026-10-1-4"
+      ],
+      [
+       "00001005",
+       "cnpj_o-2026-10-1-5",
+       "cnpj_d-2026-10-1-5",
+       "identi-2026-10-1-5",
+       "nome_f-2026-10-1-5",
+       "D'AGUA COMERCIO LTDA",
+       "data_s-2026-10-1-5",
+       "motivo-2026-10-1-5",
+       "nome_c-2026-10-1-5",
+       "pais-2026-10-1-5",
+       "CTRLC1",
+       "cnae_f-2026-10-1-5",
+       "cnae_f-2026-10-1-5",
+       "tipo_l-2026-10-1-5",
+       "lograd-2026-10-1-5",
+       "LINHA UM\nLINHA DOIS",
+       "comple-2026-10-1-5",
+       "bairro-2026-10-1-5",
+       "cep-2026-10-1-5",
+       "uf-2026-10-1-5",
+       "BAR \"DO ZE\" O'NEIL",
+       "ddd1-2026-10-1-5",
+       "telefo-2026-10-1-5",
+       "ddd2-2026-10-1-5",
+       "telefo-2026-10-1-5",
+       "",
+       "fax-2026-10-1-5",
+       "correi-2026-10-1-5",
+       "situac-2026-10-1-5",
+       "data_s-2026-10-1-5"
+      ],
+      [
+       "00001006",
+       "cnpj_o-2026-10-1-6",
+       "cnpj_d-2026-10-1-6",
+       "identi-2026-10-1-6",
+       "RUA A;B (ponto e vírgula)",
+       "situac-2026-10-1-6",
+       "data_s-2026-10-1-6",
+       "motivo-2026-10-1-6",
+       "nome_c-2026-10-1-6",
+       "D'AGUA COMERCIO LTDA",
+       "data_i-2026-10-1-6",
+       "cnae_f-2026-10-1-6",
+       "cnae_f-2026-10-1-6",
+       "tipo_l-2026-10-1-6",
+       "CTRLC1",
+       "numero-2026-10-1-6",
+       "comple-2026-10-1-6",
+       "bairro-2026-10-1-6",
+       "cep-2026-10-1-6",
+       "LINHA UM\nLINHA DOIS",
+       "munici-2026-10-1-6",
+       "ddd1-2026-10-1-6",
+       "telefo-2026-10-1-6",
+       "ddd2-2026-10-1-6",
+       "BAR \"DO ZE\" O'NEIL",
+       "ddd_fa-2026-10-1-6",
+       "fax-2026-10-1-6",
+       "correi-2026-10-1-6",
+       "situac-2026-10-1-6",
+       ""
+      ]
+     ],
+     "linhas": 11
+    }
+   }
+  },
+  "simples": {
+   "colunas": [
+    [
+     "cnpj_basico",
+     "String"
+    ],
+    [
+     "opcao_simples",
+     "String"
+    ],
+    [
+     "data_opcao_simples",
+     "String"
+    ],
+    [
+     "data_exclusao_simples",
+     "String"
+    ],
+    [
+     "opcao_mei",
+     "String"
+    ],
+    [
+     "data_opcao_mei",
+     "String"
+    ],
+    [
+     "data_exclusao_mei",
+     "String"
+    ],
+    [
+     "ano",
+     "Int64"
+    ],
+    [
+     "mes",
+     "String"
+    ]
+   ],
+   "periodos": {
+    "2026-10": {
+     "colunas": [
+      [
+       "cnpj_basico",
+       "String"
+      ],
+      [
+       "opcao_simples",
+       "String"
+      ],
+      [
+       "data_opcao_simples",
+       "String"
+      ],
+      [
+       "data_exclusao_simples",
+       "String"
+      ],
+      [
+       "opcao_mei",
+       "String"
+      ],
+      [
+       "data_opcao_mei",
+       "String"
+      ],
+      [
+       "data_exclusao_mei",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000000",
+       "opcao_-2026-10-None-0",
+       "data_o-2026-10-None-0",
+       "data_e-2026-10-None-0",
+       "opcao_-2026-10-None-0",
+       "CTRLC1",
+       "data_e-2026-10-None-0"
+      ],
+      [
+       "00000001",
+       "opcao_-2026-10-None-1",
+       "data_o-2026-10-None-1",
+       "data_e-2026-10-None-1",
+       "D'AGUA COMERCIO LTDA",
+       "data_o-2026-10-None-1",
+       "data_e-2026-10-None-1"
+      ],
+      [
+       "00000002",
+       "opcao_-2026-10-None-2",
+       "data_o-2026-10-None-2",
+       "RUA A;B (ponto e vírgula)",
+       "opcao_-2026-10-None-2",
+       "data_o-2026-10-None-2",
+       "data_e-2026-10-None-2"
+      ],
+      [
+       "00000003",
+       "opcao_-2026-10-None-3",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "data_e-2026-10-None-3",
+       "opcao_-2026-10-None-3",
+       "data_o-2026-10-None-3",
+       "data_e-2026-10-None-3"
+      ]
+     ],
+     "linhas": 4
+    }
+   }
+  },
+  "socios": {
+   "colunas": [
+    [
+     "cnpj_basico",
+     "String"
+    ],
+    [
+     "identificador_socio",
+     "String"
+    ],
+    [
+     "nome_socio",
+     "String"
+    ],
+    [
+     "cnpj_cpf_socio",
+     "String"
+    ],
+    [
+     "qualificacao_socio",
+     "String"
+    ],
+    [
+     "data_entrada_sociedade",
+     "String"
+    ],
+    [
+     "pais",
+     "String"
+    ],
+    [
+     "representante_legal",
+     "String"
+    ],
+    [
+     "nome_representante_legal",
+     "String"
+    ],
+    [
+     "qualificacao_representante_legal",
+     "String"
+    ],
+    [
+     "faixa_etaria",
+     "String"
+    ],
+    [
+     "ano",
+     "Int64"
+    ],
+    [
+     "mes",
+     "String"
+    ]
+   ],
+   "periodos": {
+    "2026-10": {
+     "colunas": [
+      [
+       "cnpj_basico",
+       "String"
+      ],
+      [
+       "identificador_socio",
+       "String"
+      ],
+      [
+       "nome_socio",
+       "String"
+      ],
+      [
+       "cnpj_cpf_socio",
+       "String"
+      ],
+      [
+       "qualificacao_socio",
+       "String"
+      ],
+      [
+       "data_entrada_sociedade",
+       "String"
+      ],
+      [
+       "pais",
+       "String"
+      ],
+      [
+       "representante_legal",
+       "String"
+      ],
+      [
+       "nome_representante_legal",
+       "String"
+      ],
+      [
+       "qualificacao_representante_legal",
+       "String"
+      ],
+      [
+       "faixa_etaria",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000000",
+       "identi-2026-10-0-0",
+       "nome_s-2026-10-0-0",
+       "cnpj_c-2026-10-0-0",
+       "qualif-2026-10-0-0",
+       "CTRLC1",
+       "pais-2026-10-0-0",
+       "repres-2026-10-0-0",
+       "nome_r-2026-10-0-0",
+       "qualif-2026-10-0-0",
+       "LINHA UM\nLINHA DOIS"
+      ],
+      [
+       "00000001",
+       "identi-2026-10-0-1",
+       "nome_s-2026-10-0-1",
+       "cnpj_c-2026-10-0-1",
+       "D'AGUA COMERCIO LTDA",
+       "data_e-2026-10-0-1",
+       "pais-2026-10-0-1",
+       "repres-2026-10-0-1",
+       "nome_r-2026-10-0-1",
+       "CTRLC1",
+       "faixa_-2026-10-0-1"
+      ],
+      [
+       "00000002",
+       "identi-2026-10-0-2",
+       "nome_s-2026-10-0-2",
+       "RUA A;B (ponto e vírgula)",
+       "qualif-2026-10-0-2",
+       "data_e-2026-10-0-2",
+       "pais-2026-10-0-2",
+       "repres-2026-10-0-2",
+       "D'AGUA COMERCIO LTDA",
+       "qualif-2026-10-0-2",
+       "faixa_-2026-10-0-2"
+      ],
+      [
+       "00000003",
+       "identi-2026-10-0-3",
+       "AÇÚCAR E ÁLCOOL S/A",
+       "cnpj_c-2026-10-0-3",
+       "qualif-2026-10-0-3",
+       "data_e-2026-10-0-3",
+       "pais-2026-10-0-3",
+       "RUA A;B (ponto e vírgula)",
+       "nome_r-2026-10-0-3",
+       "qualif-2026-10-0-3",
+       "faixa_-2026-10-0-3"
+      ],
+      [
+       "00001000",
+       "identi-2026-10-1-0",
+       "nome_s-2026-10-1-0",
+       "cnpj_c-2026-10-1-0",
+       "qualif-2026-10-1-0",
+       "",
+       "pais-2026-10-1-0",
+       "repres-2026-10-1-0",
+       "nome_r-2026-10-1-0",
+       "qualif-2026-10-1-0",
+       "AÇÚCAR E ÁLCOOL S/A"
+      ],
+      [
+       "00001001",
+       "identi-2026-10-1-1",
+       "nome_s-2026-10-1-1",
+       "cnpj_c-2026-10-1-1",
+       "BAR \"DO ZE\" O'NEIL",
+       "data_e-2026-10-1-1",
+       "pais-2026-10-1-1",
+       "repres-2026-10-1-1",
+       "nome_r-2026-10-1-1",
+       "",
+       "faixa_-2026-10-1-1"
+      ],
+      [
+       "00001002",
+       "identi-2026-10-1-2",
+       "nome_s-2026-10-1-2",
+       "LINHA UM\nLINHA DOIS",
+       "qualif-2026-10-1-2",
+       "data_e-2026-10-1-2",
+       "pais-2026-10-1-2",
+       "repres-2026-10-1-2",
+       "BAR \"DO ZE\" O'NEIL",
+       "qualif-2026-10-1-2",
+       "faixa_-2026-10-1-2"
+      ],
+      [
+       "00001003",
+       "identi-2026-10-1-3",
+       "CTRLC1",
+       "cnpj_c-2026-10-1-3",
+       "qualif-2026-10-1-3",
+       "data_e-2026-10-1-3",
+       "pais-2026-10-1-3",
+       "LINHA UM\nLINHA DOIS",
+       "nome_r-2026-10-1-3",
+       "qualif-2026-10-1-3",
+       "faixa_-2026-10-1-3"
+      ],
+      [
+       "00001004",
+       "D'AGUA COMERCIO LTDA",
+       "nome_s-2026-10-1-4",
+       "cnpj_c-2026-10-1-4",
+       "qualif-2026-10-1-4",
+       "data_e-2026-10-1-4",
+       "CTRLC1",
+       "repres-2026-10-1-4",
+       "nome_r-2026-10-1-4",
+       "qualif-2026-10-1-4",
+       "faixa_-2026-10-1-4"
+      ],
+      [
+       "00001005",
+       "identi-2026-10-1-5",
+       "nome_s-2026-10-1-5",
+       "cnpj_c-2026-10-1-5",
+       "qualif-2026-10-1-5",
+       "D'AGUA COMERCIO LTDA",
+       "pais-2026-10-1-5",
+       "repres-2026-10-1-5",
+       "nome_r-2026-10-1-5",
+       "qualif-2026-10-1-5",
+       "CTRLC1"
+      ],
+      [
+       "00001006",
+       "identi-2026-10-1-6",
+       "nome_s-2026-10-1-6",
+       "cnpj_c-2026-10-1-6",
+       "RUA A;B (ponto e vírgula)",
+       "data_e-2026-10-1-6",
+       "pais-2026-10-1-6",
+       "repres-2026-10-1-6",
+       "nome_r-2026-10-1-6",
+       "D'AGUA COMERCIO LTDA",
+       "faixa_-2026-10-1-6"
+      ]
+     ],
+     "linhas": 11
+    }
+   }
+  }
+ }
+}
