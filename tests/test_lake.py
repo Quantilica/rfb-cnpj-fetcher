@@ -123,7 +123,7 @@ def test_convert_end_to_end(raw_data: Path, tmp_path: Path) -> None:
     assert check_dataset(cnaes_dir) == []
 
     df_cnaes = scan_dataset(cnaes_dir).collect()
-    assert df_cnaes.shape == (2, 4)  # 2 data cols + ano + mes
+    assert df_cnaes.shape == (2, 5)  # 2 data cols + _origem + ano + mes
     assert set(df_cnaes["codigo"].to_list()) == {"6201500", "6202300"}
     assert df_cnaes["ano"][0] == 2026
     assert df_cnaes["mes"][0] == "10"
@@ -133,7 +133,8 @@ def test_convert_end_to_end(raw_data: Path, tmp_path: Path) -> None:
     assert check_dataset(emp_dir) == []
 
     df_emp = scan_dataset(emp_dir).collect()
-    assert df_emp.shape == (2, 9)  # 7 data cols + ano + mes
+    assert df_emp.shape == (2, 10)  # 7 data cols + _origem + ano + mes
+    assert sorted(df_emp["_origem"].to_list()) == ["Empresas0", "Empresas1"]
     assert set(df_emp["cnpj_basico"].to_list()) == {"00000000", "00000001"}
 
     # Second conversion skips already converted

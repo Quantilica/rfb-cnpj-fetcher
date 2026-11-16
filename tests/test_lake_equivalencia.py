@@ -16,9 +16,17 @@ import pytest
 pytest.importorskip("quantilica.analytics.lake")
 pytest.importorskip("duckdb")
 
-from rfb_cnpj_fetcher.lake import converter  # noqa: E402
+from rfb_cnpj_fetcher.lake import (
+    SOURCE_ID,  # noqa: E402
+    converter,  # noqa: E402
+)
 
-from .lake_fixtures import GOLDEN, build_raw, snapshot  # noqa: E402
+from .lake_fixtures import (  # noqa: E402
+    GOLDEN,
+    build_raw,
+    contagem_de_arquivos,
+    snapshot,
+)
 
 
 def _golden() -> dict:
@@ -47,3 +55,30 @@ def test_conteudo_do_lake_igual_ao_do_conversor_anterior(tmp_path: Path) -> None
             assert lido["linhas"] == dados["linhas"], (dataset, periodo)
             assert lido["colunas"] == dados["colunas"], (dataset, periodo)
             assert lido["conteudo"] == dados["conteudo"], (dataset, periodo)
+
+
+def test_um_parquet_por_dataset_e_mes(tmp_path: Path) -> None:
+    build_raw(tmp_path / "raw")
+    res = converter.convert(tmp_path / "raw", tmp_path / "lake")
+    assert not res.errors
+
+    depois = contagem_de_arquivos(tmp_path / "lake")
+    antes = _golden()["contagem_de_arquivos"]
+
+    assert sorted(depois) == sorted(antes)
+    for dataset, meses in depois.items():
+        assert set(meses) == set(antes[dataset])
+        assert set(meses.values()) == {1}, dataset
+    # Antes: um Parquet por ZIP (12 nas fixtures). Depois: um por dataset e mês (7).
+    assert sum(sum(m.values()) for m in antes.values()) == 12
+    assert sum(sum(m.values()) for m in depois.values()) == 7
+    nomes = sorted(p.name for p in (tmp_path / "lake" / SOURCE_ID).rglob("*.parquet"))
+    assert nomes == [
+        "cnaes_202609.parquet",
+        "cnaes_202610.parquet",
+        "empresas_202609.parquet",
+        "empresas_202610.parquet",
+        "estabelecimentos_202610.parquet",
+        "simples_202610.parquet",
+        "socios_202610.parquet",
+    ]
