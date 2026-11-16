@@ -5,6 +5,7 @@
    "2026-10": 1
   },
   "empresas": {
+   "2026-08": 1,
    "2026-09": 2,
    "2026-10": 3
   },
@@ -143,6 +144,86 @@
     ]
    ],
    "periodos": {
+    "2026-08": {
+     "colunas": [
+      [
+       "cnpj_basico",
+       "String"
+      ],
+      [
+       "razao_social",
+       "String"
+      ],
+      [
+       "natureza_juridica",
+       "String"
+      ],
+      [
+       "qualificacao_responsavel",
+       "String"
+      ],
+      [
+       "capital_social",
+       "String"
+      ],
+      [
+       "porte_empresa",
+       "String"
+      ],
+      [
+       "ente_federativo_responsavel",
+       "String"
+      ]
+     ],
+     "conteudo": [
+      [
+       "00000010",
+       "SEM ASPAS LTDA",
+       "2062",
+       "49",
+       "1000,00",
+       "01",
+       ""
+      ],
+      [
+       "00000011",
+       "MISTA SA",
+       "2062",
+       "49",
+       "5,00",
+       "01",
+       ""
+      ],
+      [
+       "00000012",
+       "LINHA CURTA",
+       "2062",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "00000013",
+       "LINHA LONGA",
+       "2062",
+       "49",
+       "1,00",
+       "01",
+       ""
+      ],
+      [
+       "00000014",
+       "NORMAL",
+       "2062",
+       "49",
+       "1,00",
+       "01",
+       ""
+      ]
+     ],
+     "linhas": 5
+    },
     "2026-09": {
      "colunas": [
       [

@@ -69,13 +69,14 @@ def test_um_parquet_por_dataset_e_mes(tmp_path: Path) -> None:
     for dataset, meses in depois.items():
         assert set(meses) == set(antes[dataset])
         assert set(meses.values()) == {1}, dataset
-    # Antes: um Parquet por ZIP (12 nas fixtures). Depois: um por dataset e mês (7).
-    assert sum(sum(m.values()) for m in antes.values()) == 12
-    assert sum(sum(m.values()) for m in depois.values()) == 7
+    # Antes: um Parquet por ZIP (13 nas fixtures). Depois: um por dataset e mês (8).
+    assert sum(sum(m.values()) for m in antes.values()) == 13
+    assert sum(sum(m.values()) for m in depois.values()) == 8
     nomes = sorted(p.name for p in (tmp_path / "lake" / SOURCE_ID).rglob("*.parquet"))
     assert nomes == [
         "cnaes_202609.parquet",
         "cnaes_202610.parquet",
+        "empresas_202608.parquet",
         "empresas_202609.parquet",
         "empresas_202610.parquet",
         "estabelecimentos_202610.parquet",

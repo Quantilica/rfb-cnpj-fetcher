@@ -16,11 +16,14 @@ staged as Parquet, and its extraction is removed before the next one starts.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
+import socket
 import tempfile
 import zipfile
+import zlib
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
@@ -28,14 +31,26 @@ from typing import Any
 
 try:
     import duckdb
+    import pyarrow.parquet as pq
     from quantilica.analytics.lake import (
+        META_MEMBERS,
+        OWNER_FILE,
+        WORK_PREFIX,
         DuckSource,
         GroupMember,
         LakeError,
         LakeWriter,
     )
+    from quantilica.core.exceptions import StorageError
     from quantilica.core.files import sha256_file
-    from quantilica.core.lake import DatasetDescriptor, file_key, partition_types_for
+    from quantilica.core.lake import (
+        DatasetDescriptor,
+        file_key,
+        partition_dir,
+        partition_types_for,
+    )
+    from quantilica.core.logging import get_logger
+    from quantilica.core.manifests import manifest_sidecar_path
 except ImportError as exc:
     raise ImportError(
         "rfb_cnpj_fetcher.lake requer o extra 'analysis': "
@@ -46,6 +61,8 @@ except ImportError as exc:
 from rfb_cnpj_fetcher import __version__
 from rfb_cnpj_fetcher.catalog import _GROUP_PATTERNS
 from rfb_cnpj_fetcher.reader import LAYOUTS
+
+logger = get_logger(__name__)
 
 SOURCE_ID = "rfb-cnpj"
 PARTITION_KEYS = ["ano", "mes"]
@@ -65,6 +82,18 @@ _NOT_DATA_SUFFIXES = {
     ".png", ".jpg", ".jpeg",
 }  # fmt: skip
 _NOT_DATA_NAME = re.compile(r"^(leia-?me|readme|licen[cs]e)", re.IGNORECASE)
+# Failures that spoil one month, not the run: a damaged ZIP, an unreadable or
+# unhashable file, a DuckDB or lake error.
+_MONTH_ERRORS = (
+    LakeError,
+    OSError,
+    ValueError,
+    EOFError,
+    zlib.error,
+    zipfile.BadZipFile,
+    StorageError,
+    duckdb.Error,
+)
 _C1_BYTES = re.compile(rb"[\x80-\x9f]")
 
 _COMPETENCIA = re.compile(r"^\d{4}-\d{2}$")
@@ -164,7 +193,12 @@ def _to_utf8(files: list[Path], folder: Path) -> list[Path]:
 
 
 def read_csv_sql(files: list[Path], names: tuple[str, ...], encoding: str) -> str:
-    """The DuckDB ``SELECT`` that reads the files of one raw ZIP, all as text."""
+    """The DuckDB ``SELECT`` that reads the files of one raw ZIP, all as text.
+
+    Only the ``names`` columns are selected, never ``*``: a line with more fields
+    than the layout would otherwise add ``column7``... to the Parquet (and a line
+    with fewer is padded with nulls), as ``write_duckdb`` already did.
+    """
     args = [
         "[" + ", ".join(_lit(str(f)) for f in files) + "]",
         "delim=';'",
@@ -183,7 +217,8 @@ def read_csv_sql(files: list[Path], names: tuple[str, ...], encoding: str) -> st
         "parallel=false",
         "names=[" + ", ".join(_lit(n) for n in names) + "]",
     ]
-    return f"SELECT * FROM read_csv({', '.join(args)})"
+    columns = ", ".join('"' + n.replace('"', '""') + '"' for n in names)
+    return f"SELECT {columns} FROM read_csv({', '.join(args)})"
 
 
 class _Extractions:
@@ -194,28 +229,42 @@ class _Extractions:
     extraction of the previous member is removed when the next one is requested
     and, at the latest, by :meth:`close`: the disk holds the CSV of one ZIP, not of
     ten (``estabelecimentos`` has about 15 GB of CSV a month).
+
+    The folder carries the analytics' work prefix and an ``owner.json`` (pid and
+    host), so the analytics' scratch cleanup recognises it as a work directory of
+    a live process, or of a dead one that can be swept.
     """
 
     def __init__(self, base: Path) -> None:
         self.base = base
         self._current: Path | None = None
 
+    def _folder(self) -> Path:
+        self.base.mkdir(parents=True, exist_ok=True)
+        folder = Path(tempfile.mkdtemp(prefix=WORK_PREFIX, dir=self.base))
+        (folder / OWNER_FILE).write_text(
+            json.dumps({"pid": os.getpid(), "hostname": socket.gethostname()})
+        )
+        self._current = folder
+        return folder
+
     def source(self, path: Path, names: tuple[str, ...]) -> DuckSource:
         self._drop()
-        if path.suffix.lower() in _TEXT_SUFFIXES:
-            return DuckSource(read_csv_sql([path], names, "latin-1"))
-        if path.suffix.lower() != ".zip":
+        suffix = path.suffix.lower()
+        if suffix in _TEXT_SUFFIXES:
+            files = [path]
+        elif suffix == ".zip":
+            folder = self._folder()
+            with zipfile.ZipFile(path) as archive:
+                chosen = _data_members([m.filename for m in archive.infolist()])
+                if not chosen:
+                    raise LakeError(f"{path.name}: o ZIP não tem arquivo de dados")
+                files = [Path(archive.extract(name, folder / "raw")) for name in chosen]
+        else:
             raise LakeError(f"{path.name}: formato não suportado")
-        self.base.mkdir(parents=True, exist_ok=True)
-        folder = Path(tempfile.mkdtemp(prefix="rfb-cnpj-", dir=self.base))
-        self._current = folder
-        with zipfile.ZipFile(path) as archive:
-            chosen = _data_members([m.filename for m in archive.infolist()])
-            if not chosen:
-                raise LakeError(f"{path.name}: o ZIP não tem arquivo de dados")
-            files = [Path(archive.extract(name, folder)) for name in chosen]
         encoding = "latin-1"
         if any(map(_has_c1_bytes, files)):
+            folder = self._current or self._folder()
             files = _to_utf8(files, folder / "utf8")
             encoding = "utf-8"
         return DuckSource(read_csv_sql(files, names, encoding))
@@ -233,12 +282,106 @@ class _Extractions:
             pass
 
 
-def _latest_per_key(paths: list[Path]) -> list[Path]:
-    """One raw file per file key: the last by name, i.e. the latest ``@date``."""
-    chosen: dict[str, Path] = {}
+_PART = re.compile(
+    r"^(?P<ds>empresas|estabelecimentos|socios)[_-]?(?P<n>\d+)(?P<rest>.*)$",
+    re.IGNORECASE,
+)
+_COMPETENCIA_IN_KEY = re.compile(r"_\d{4}-\d{2}")
+_STAMP_IN_NAME = re.compile(r"@(?P<stamp>[0-9T]+)")
+
+
+def member_identity(group: str, path: Path) -> tuple[int | None, str, str]:
+    """``(part number, variant, canonical member key)`` of a raw ZIP.
+
+    The two raw layouts name the same ZIP differently (``2026-10/empresas/
+    Empresas0@...zip`` and ``empresas/empresas_0_2026-10@...zip``); both are part 0
+    of ``empresas``. A correction file (``Estabelecimentos6-RF0819...zip``) has
+    the same part and a *variant* (``RF0819...``), so it is kept as another member
+    and never replaces the original, whose rows it may not repeat. The canonical
+    key is the current layout's name (``Empresas0``, ``Estabelecimentos6-RF...``,
+    ``Simples``), stable whichever layout the file came from.
+    """
+    key = _COMPETENCIA_IN_KEY.sub("", file_key(path))
+    match = _PART.match(key)
+    if match and match["ds"].lower() == group:
+        number = int(match["n"])
+        variant = match["rest"].strip("_-")
+        name = f"{group.capitalize()}{number}"
+    elif key.lower().startswith(group):
+        number, variant = None, key[len(group) :].strip("_-")
+        name = group.capitalize()
+    else:  # a name from no known layout: its own member, never merged
+        return None, "", file_key(path)
+    canonical = f"{name}-{variant}" if variant else name
+    return number, variant, canonical
+
+
+def select_members(group: str, paths: list[Path]) -> list[tuple[Path, str]]:
+    """One raw ZIP per ``(part, variant)``: ``[(path, canonical key)]``.
+
+    The same ZIP can be in the input twice (both raw layouts, several ``@date``
+    versions). The newest ``@date`` stamp wins; on a tie, the current layout (a
+    name with no ``_AAAA-MM`` competence), then the last path. A group whose
+    chosen ZIPs have different stamps (parts of different harvests) is logged.
+    """
+    best: dict[str, tuple[tuple, Path]] = {}
     for path in sorted(paths):
-        chosen[file_key(path)] = path
-    return list(chosen.values())
+        _, _, canonical = member_identity(group, path)
+        stamp = _STAMP_IN_NAME.search(path.name)
+        rank = (
+            stamp["stamp"] if stamp else "",
+            not _COMPETENCIA_IN_KEY.search(file_key(path)),
+            str(path),
+        )
+        if canonical not in best or rank > best[canonical][0]:
+            best[canonical] = (rank, path)
+    chosen = [(entry[1], canonical) for canonical, entry in sorted(best.items())]
+    stamps = {entry[0][0] for entry in best.values() if entry[0][0]}
+    if len(stamps) > 1:
+        logger.warning(
+            "%s: parts from different harvests (stamps %s)", group, sorted(stamps)
+        )
+    return chosen
+
+
+def known_sha256(path: Path) -> str | None:
+    """The ZIP's sha256 from its manifest sidecar, when it can be trusted.
+
+    Trusted only if the manifest records a size equal to the file's and the file
+    was not modified after the manifest was written (``mtime``); otherwise
+    ``None`` and the caller hashes the file. ``RFB_CNPJ_FETCHER_REHASH=1`` turns
+    the shortcut off. Rehashing ~190 GB of ZIPs on every run is what it avoids; the
+    lake audit (``rehash=True``) still checks the digests against the bytes.
+    """
+    if os.environ.get("RFB_CNPJ_FETCHER_REHASH"):
+        return None
+    sidecar = manifest_sidecar_path(path)
+    try:
+        recorded = json.loads(sidecar.read_text(encoding="utf-8"))
+        size = int(recorded.get("size_bytes") or 0)
+        sha = str(recorded.get("sha256") or "").lower()
+        stat, sidecar_stat = path.stat(), sidecar.stat()
+    except (OSError, ValueError, TypeError, AttributeError):
+        return None
+    if not size or not re.fullmatch(r"[0-9a-f]{64}", sha):
+        return None
+    if size != stat.st_size or stat.st_mtime > sidecar_stat.st_mtime + 2:
+        return None
+    return sha
+
+
+def _published_members(
+    writer: LakeWriter, group_key: str, partitions: dict[str, Any]
+) -> set[str] | None:
+    """Keys of the members in the footer of the month's published file, if any."""
+    path = partition_dir(writer.dataset_dir, partitions) / f"{group_key}.parquet"
+    if not path.is_file():
+        return None
+    try:
+        footer = pq.ParquetFile(path).metadata.metadata or {}
+        return set(json.loads(footer[META_MEMBERS.encode()]))
+    except Exception:  # noqa: BLE001 - a damaged footer is write_group's to judge
+        return None
 
 
 class LakeConverter:
@@ -325,7 +468,7 @@ class LakeConverter:
                     force=force,
                 )
             self._convert_group(
-                writers[group], group, ano, mes, _latest_per_key(paths), result
+                writers[group], group, ano, mes, select_members(group, paths), result
             )
         return result
 
@@ -335,7 +478,7 @@ class LakeConverter:
         group: str,
         ano: int,
         mes: str,
-        paths: list[Path],
+        chosen: list[tuple[Path, str]],
         result: ConvertResult,
     ) -> None:
         group_key = f"{group}_{ano}{mes}"
@@ -346,32 +489,47 @@ class LakeConverter:
             Path(scratch) if scratch else writer.dataset_dir / ".tmp"
         )
 
-        def member(path: Path, digest: str) -> GroupMember:
+        def member(path: Path, key: str) -> GroupMember:
             # The function runs only for a ZIP that has to be written.
             return GroupMember(
                 path,
                 lambda: extractions.source(path, names),
-                sha256=digest,
+                key=key,
+                sha256=known_sha256(path) or sha256_file(path),
             )
 
         try:
-            members = [member(p, sha256_file(p)) for p in paths]
+            members = [member(path, key) for path, key in chosen]
             options = {
                 "partitions": partitions,
                 "contract_version": CONTRACT_VERSION,
                 "converter_version": CONVERTER_VERSION,
             }
-            current = writer.is_current_group(group_key, members, **options)
+            # Um ZIP que sumiu da visão não pode levar suas linhas junto: o mês só
+            # é reescrito com todos os membros que o arquivo publicado já tem.
+            published = _published_members(writer, group_key, partitions)
+            missing = sorted((published or set()) - {m.key for m in members})
+            if missing:
+                result.errors.append(
+                    f"{group_key}: mês incompleto: faltam {', '.join(missing)} "
+                    "no bruto; o mês não foi reescrito. Se o ZIP saiu de propósito, "
+                    "apague o Parquet do mês e reconverta"
+                )
+                return
+            current = writer.is_current_group(
+                group_key, members, prune=False, **options
+            )
             written = writer.write_group(
                 group_key,
                 members,
                 converter=f"rfb-cnpj-fetcher {__version__}",
+                prune=False,
                 # Os Parquets antigos (um por ZIP) do mês saem depois que o novo
                 # é publicado; só os que o grupo cobre por sha256.
                 replace_partition=True,
                 **options,
             )
-        except (LakeError, OSError, ValueError, duckdb.Error) as exc:
+        except _MONTH_ERRORS as exc:
             message = str(exc).strip()
             first_line = message.splitlines()[0] if message else repr(exc)
             result.errors.append(f"{group_key}: {first_line}")
@@ -379,8 +537,14 @@ class LakeConverter:
         finally:
             extractions.close()
 
+        for kept in written.not_replaced:
+            result.errors.append(
+                f"{group_key}: Parquet antigo mantido, de origem que não é ZIP do "
+                f"grupo: {kept}; as linhas dele estão duplicadas no mês até você "
+                "removê-lo (apague-o se o ZIP não existe mais no bruto)"
+            )
         if written.status == "skipped" or current:
-            result.skipped += len(paths)
+            result.skipped += len(chosen)
         else:
             result.converted += len(written.written)
             result.skipped += len(written.kept)
