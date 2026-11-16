@@ -1,0 +1,18 @@
+_commit: v0.2.1
+_src_path: /home/dk/code/Quantilica/fetcher-template
+author_email: daniel@dkko.me
+author_name: Komesu, D.K.
+cadencia: monthly
+description: Download dos dados públicos de CNPJ da Receita Federal do Brasil
+domain: empresas
+dominio: fiscal
+has_lake: true
+homepage: https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/consultas/dados-publicos-cnpj
+licenca: Sem licença declarada; dados públicos pela Lei 12.527/2011 (LAI) e Decreto
+    8.777/2016
+orgao: Receita Federal do Brasil (RFB)
+package_name: rfb-cnpj-fetcher
+package_slug: rfb_cnpj_fetcher
+protocol: http
+source_id: rfb-cnpj
+source_name: Receita Federal - Dados Públicos do CNPJ
