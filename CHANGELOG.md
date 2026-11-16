@@ -7,6 +7,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+
+## [0.8.0] - 2026-11-16
 ### Alterado
 - **Quebra de layout no lake: um Parquet por dataset e mês.** Os ZIPs do mesmo dataset e mês (`Empresas0` a `Empresas9`, `Estabelecimentos0` a `9`, `Socios0` a `9`, e também os arquivos únicos como `Simples` e `Cnaes`) viram um Parquet só, escrito por `LakeWriter.write_group`. Antes e depois, em `rfb-cnpj/<dataset>/ano=AAAA/mes=MM/`:
   - antes: `Empresas0.parquet` ... `Empresas9.parquet` (10 arquivos por mês em `empresas`, `estabelecimentos` e `socios`; 1 nos demais);
