@@ -80,7 +80,7 @@ A situação de cada empresa no Simples Nacional e no regime do Microempreendedo
 
 ## No lake
 
-- Dataset `rfb-cnpj/simples`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Simples.parquet`).
+- Dataset `rfb-cnpj/simples`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por mês (`simples_AAAAMM.parquet`), do arquivo único do bruto (`Simples`); a coluna `_origem` traz o nome desse arquivo.
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
 - O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`F.K03200$W.SIMPLES.CSV.D61010`).

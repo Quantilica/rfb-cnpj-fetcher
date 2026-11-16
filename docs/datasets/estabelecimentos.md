@@ -119,7 +119,7 @@ Os estabelecimentos do CNPJ: a matriz e cada filial de uma empresa, com o CNPJ c
 
 ## No lake
 
-- Dataset `rfb-cnpj/estabelecimentos`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Estabelecimentos0.parquet` a `Estabelecimentos9.parquet`).
+- Dataset `rfb-cnpj/estabelecimentos`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por mês (`estabelecimentos_AAAAMM.parquet`), que reúne as dez partes do bruto (`Estabelecimentos0` a `Estabelecimentos9`). A coluna `_origem` diz de qual arquivo veio cada linha (`Estabelecimentos3`); a parte não tem significado de negócio e não vira coluna de dados.
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
 - O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`K3241.K03200Y9.D61010.ESTABELE`).

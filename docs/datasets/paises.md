@@ -74,7 +74,7 @@ Tabela de domínio que a Receita publica a cada competência para traduzir o có
 
 ## No lake
 
-- Dataset `rfb-cnpj/paises`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por arquivo do bruto (`Paises.parquet`).
+- Dataset `rfb-cnpj/paises`, particionado por `ano` (inteiro) e `mes` (texto de 2 dígitos, `05`); um Parquet por mês (`paises_AAAAMM.parquet`), do arquivo único do bruto (`Paises`); a coluna `_origem` traz o nome desse arquivo.
 - O conversor lê o arquivo com o DuckDB em latin-1, `;` como separador, aspas duplas como delimitador e escape, sem cabeçalho (nomes do layout oficial), **tudo como texto**. Campo vazio vira nulo. Os zeros à esquerda dos códigos são mantidos.
 - Datas ficam como texto `AAAAMMDD`; o valor "sem data" (`0` ou `00000000`) **não** vira nulo no lake.
 - O conversor lê o arquivo de texto do ZIP qualquer que seja o nome dele: o ZIP real da Receita traz o arquivo sem extensão `.csv`/`.txt` (`F.K03200$Z.D61010.PAISCSV`).

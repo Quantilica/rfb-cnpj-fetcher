@@ -7,8 +7,22 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Alterado
+- **Quebra de layout no lake: um Parquet por dataset e mês.** Os ZIPs do mesmo dataset e mês (`Empresas0` a `Empresas9`, `Estabelecimentos0` a `9`, `Socios0` a `9`, e também os arquivos únicos como `Simples` e `Cnaes`) viram um Parquet só, escrito por `LakeWriter.write_group`. Antes e depois, em `rfb-cnpj/<dataset>/ano=AAAA/mes=MM/`:
+  - antes: `Empresas0.parquet` ... `Empresas9.parquet` (10 arquivos por mês em `empresas`, `estabelecimentos` e `socios`; 1 nos demais);
+  - depois: `empresas_AAAAMM.parquet`, `estabelecimentos_AAAAMM.parquet`, `socios_AAAAMM.parquet`, `simples_AAAAMM.parquet`, `cnaes_AAAAMM.parquet`... (1 por dataset e mês, sem sufixo `-NNN`, qualquer que seja o tamanho).
+  - As pastas `ano=`/`mes=` não mudam. Cada linha ganha a coluna `_origem` (o arquivo do ZIP de onde veio, ex.: `Empresas3`) e o rodapé do Parquet lista os ZIPs (`quantilica.members`, com sha256 e linhas de cada um). A parte do ZIP não vira coluna de dados: ela divide as empresas por faixa de CNPJ, sem significado de negócio.
+  - Na reconversão os Parquets antigos do mês saem sozinhos depois que o novo é publicado, desde que o sha256 de origem de cada um seja de um ZIP do grupo; um Parquet antigo cujo ZIP já não está no bruto fica no lake (o grupo não tem as linhas dele) e deve ser apagado à mão.
+- O mês é escrito numa passada só e em streaming (o DuckDB lê o CSV extraído e o Parquet do mês sai por `COPY`); só um ZIP fica extraído no disco por vez. `estabelecimentos` chega a cerca de 3 GB de Parquet por mês, acima da faixa de 64 MB a 1 GB do lake, porque o grupo é sempre um arquivo só.
+- Um ZIP novo ou alterado reescreve o Parquet do mês inteiro, mas só o ZIP novo é extraído e lido; os outros têm as linhas copiadas do arquivo existente. A lista de ZIPs do mês no bruto é a lista completa do grupo: um ZIP que sai do bruto sai do Parquet. Se há duas safras (`@data`) do mesmo ZIP, só a mais recente entra.
+- O reconversor passa a registrar `contract_version` (1) e `converter_version` ("1") em cada membro; mudar o layout ou a leitura do CSV e subir uma delas reconverte o mês.
+- `ConvertResult.converted` e `skipped` continuam contando ZIPs; cada mensagem de `errors` agora começa pelo grupo (`socios_202610: ...`) e um ZIP com erro impede a escrita do mês daquele dataset.
+- Exige `quantilica-analytics>=0.12.0` no extra `analysis` (`write_group`).
+- Documentação dos dados: a seção "No lake" dos dez datasets descreve o arquivo mensal e `_origem`.
+
 ### Adicionado
 - Testes: identidade do registro conferida.
+- Testes de equivalência do agrupamento: o conteúdo do lake (linhas, colunas e tipos, linhas ordenadas por dataset e mês) é igual ao do conversor de um Parquet por ZIP (`tests/golden/lake_antes_do_agrupamento.json`, gerado antes da mudança), mais segunda execução sem reescrita, migração do layout antigo sem linhas duplicadas e `lake_audit` limpo.
 
 ### Corrigido
 - CI: o pyproject declara o PyPI antes do índice Quantilica (`[[tool.uv.index]]`), e o workflow perde `--index` e `--index-strategy`. Com a estratégia padrão `first-index`, o `uv sync` só consulta o índice para o que não está no PyPI (`quantilica-analytics`) e deixa de receber o 503 intermitente que o GitHub Pages devolve a caminhos inexistentes.
